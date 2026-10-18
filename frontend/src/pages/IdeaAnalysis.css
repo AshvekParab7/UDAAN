@@ -1,0 +1,747 @@
+.ud-analysis-main { width: min(100%, 840px); margin: 0 auto; padding: 36px 34px 56px; }
+.ud-analysis-back { display: inline-flex; align-items: center; gap: 7px; color: #68766c; font-size: 12px; text-decoration: none; }
+.ud-analysis-back:hover { color: #176b43; }
+.ud-analysis-heading { margin: 29px 0 24px; }
+.ud-analysis-kicker { display: inline-flex; align-items: center; gap: 7px; color: #39764e; font-size: 10px; font-weight: 650; letter-spacing: .08em; }
+.ud-analysis-heading h1 { margin: 10px 0 6px; color: #1a2b20; font-family: 'Geist', Inter, ui-sans-serif, system-ui, sans-serif; font-size: clamp(27px, 3vw, 35px); font-weight: 570; letter-spacing: -.04em; }
+.ud-analysis-heading p, .ud-analysis-footnote { margin: 0; color: #7c887f; font-size: 12px; }
+.ud-stage-rail { display: flex; align-items: flex-start; margin-bottom: 23px; }
+.ud-stage-rail > button { min-width: 82px; display: flex; flex: 0 0 auto; flex-direction: column; align-items: center; gap: 7px; padding: 0; border: 0; color: #89948b; background: transparent; cursor: pointer; }
+.ud-stage-rail > button > span { width: 27px; height: 27px; display: grid; place-items: center; border: 1px solid #e4eae4; border-radius: 50%; background: #fff; font-size: 10px; }
+.ud-stage-rail > button.active, .ud-stage-rail > button.complete { color: #23623e; }
+.ud-stage-rail > button.active > span, .ud-stage-rail > button.complete > span { border-color: #d6e8d9; background: #edf6ee; }
+.ud-stage-rail small { font-size: 9px; white-space: nowrap; }
+.ud-stage-rail::before { content: none; }
+.ud-analysis-page .ud-stage-rail { position: relative; justify-content: space-between; gap: 8px; }
+.ud-analysis-page .ud-stage-rail::before { content: ""; position: absolute; z-index: 0; top: 13px; left: 41px; right: 41px; height: 1px; background: #e2e9e2; }
+.ud-analysis-page .ud-stage-rail > button { position: relative; z-index: 1; }
+.ud-analysis-page .ud-stage-rail > button > span { background: #fbfcfa; }
+.ud-stage-rail > button:focus-visible { outline: 2px solid #9bc7a4; outline-offset: 4px; border-radius: 5px; }
+.ud-stage-rail > button.complete > span { border-color: #d6e8d9; color: #23623e; background: #edf6ee; }
+.ud-analysis-card { padding: 22px; border: 1px solid #e6ece6; border-radius: 14px; background: #fff; box-shadow: 0 9px 30px #1a452408; }
+.ud-idea-summary { display: flex; align-items: flex-start; justify-content: space-between; gap: 15px; padding-bottom: 16px; border-bottom: 1px solid #eef1ee; }
+.ud-field-eyebrow { color: #819087; font-size: 9px; font-weight: 650; letter-spacing: .08em; }
+.ud-idea-summary p { margin: 5px 0 0; color: #334138; font-size: 13px; line-height: 1.65; white-space: pre-wrap; }
+.ud-summary-type { padding: 4px 9px; border-radius: 20px; color: #326b45; background: #eff6ef; font-size: 10px; white-space: nowrap; }
+.ud-summary-attachment { margin: 10px 0 0; color: #7d897f; font-size: 10px; }
+.ud-analysis-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 17px 14px; padding-top: 19px; }
+.ud-analysis-fields label { display: flex; flex-direction: column; gap: 7px; }
+.ud-analysis-fields label > span { color: #455349; font-size: 11px; font-weight: 600; }
+.ud-analysis-fields textarea { width: 100%; min-height: 45px; resize: vertical; padding: 10px 11px; border: 1px solid #e8ede8; border-radius: 8px; outline: none; color: #344239; background: #fcfdfc; font-family: inherit; font-size: 12px; line-height: 1.55; }
+.ud-analysis-fields textarea:focus { border-color: #b9d3be; box-shadow: 0 0 0 3px #4e9a6810; }
+.ud-analysis-fields textarea::placeholder { color: #a1aaa3; }
+.ud-analysis-success, .ud-analysis-error { display: flex; align-items: flex-start; gap: 8px; margin-top: 17px; padding: 10px 11px; border-radius: 8px; font-size: 10px; line-height: 1.5; }
+.ud-analysis-success { color: #326a45; background: #f0f7f1; }
+.ud-analysis-error { color: #984c44; background: #fff4f2; }
+.ud-analysis-actions { display: flex; justify-content: flex-end; gap: 9px; margin-top: 21px; padding-top: 16px; border-top: 1px solid #eef1ee; }
+.ud-analysis-primary, .ud-analysis-secondary { min-height: 38px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 0 14px; border: 1px solid transparent; border-radius: 8px; font: inherit; font-size: 11px; font-weight: 600; text-decoration: none; cursor: pointer; }
+.ud-analysis-primary { color: #fff; background: #155f3c; }
+.ud-analysis-primary:hover:not(:disabled) { background: #0f5232; }
+.ud-analysis-primary:disabled { opacity: .7; cursor: wait; }
+.ud-analysis-secondary { border-color: #e6ebe6; color: #5f6d63; background: #fff; }
+.ud-analysis-secondary:hover { background: #f8faf8; }
+.ud-analysis-footnote { margin: 13px 2px 0; font-size: 10px; }
+.ud-no-draft { max-width: 510px; margin: 100px auto; text-align: center; }
+.ud-no-draft > svg { color: #3e7b52; }
+.ud-no-draft h1 { margin: 12px 0 7px; font-size: 24px; }
+.ud-no-draft p { margin: 0 auto 18px; max-width: 390px; color: #7b887e; font-size: 12px; }
+.ud-spin { animation: ud-spin 1s linear infinite; }
+@keyframes ud-spin { to { transform: rotate(360deg); } }
+@media (max-width: 760px) { .ud-analysis-main { padding: 27px 18px 42px; } .ud-analysis-heading { margin-top: 23px; } .ud-analysis-card { padding: 16px; } }
+@media (max-width: 520px) { .ud-analysis-fields { grid-template-columns: 1fr; gap: 13px; } .ud-stage-rail > i { margin-right: 5px; margin-left: 5px; } .ud-stage-rail small { font-size: 8px; } .ud-analysis-main { padding-right: 14px; padding-left: 14px; } }
+
+.ud-workflow-card { padding-bottom: 18px; }
+.ud-stage-content { display: flex; flex-direction: column; gap: 16px; padding-top: 19px; }
+.ud-stage-intro { display: flex; align-items: flex-start; gap: 11px; margin-bottom: 2px; }
+.ud-stage-icon { flex: 0 0 auto; width: 33px; height: 33px; display: grid; place-items: center; border: 1px solid #e2ede3; border-radius: 10px; color: #34744a; background: #f1f7f1; }
+.ud-stage-intro h2 { margin: 0 0 3px; color: #2d3b31; font-size: 13px; font-weight: 630; }
+.ud-stage-intro p { max-width: 620px; margin: 0; color: #7a877d; font-size: 10px; line-height: 1.55; }
+.ud-research-loading { flex: 0 0 auto; margin: 8px 2px 0 auto; color: #4d805c; }
+.ud-research-error { align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+.ud-research-error button { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 6px; min-height: 28px; padding: 0 9px; border: 1px solid #e8c9c5; border-radius: 6px; color: #8e4942; background: #fff; font: inherit; font-size: 10px; font-weight: 600; cursor: pointer; }
+.ud-research-error button:disabled { opacity: .65; cursor: wait; }
+.ud-workflow-field { display: flex; flex-direction: column; gap: 7px; }
+.ud-workflow-field > span, .ud-feasibility-row label > span { color: #455349; font-size: 11px; font-weight: 600; }
+.ud-workflow-field textarea, .ud-workflow-field input, .ud-feasibility-row input, .ud-feasibility-row select, .ud-feasibility-row textarea { width: 100%; padding: 10px 11px; border: 1px solid #e8ede8; border-radius: 8px; outline: none; color: #344239; background: #fcfdfc; font: inherit; font-size: 12px; line-height: 1.55; }
+.ud-workflow-field textarea { resize: vertical; }
+.ud-workflow-field textarea:focus, .ud-workflow-field input:focus, .ud-feasibility-row input:focus, .ud-feasibility-row select:focus, .ud-feasibility-row textarea:focus { border-color: #b9d3be; box-shadow: 0 0 0 3px #4e9a6810; }
+.ud-research-note { display: flex; align-items: flex-start; gap: 7px; margin: 0; color: #6f7e72; font-size: 10px; line-height: 1.55; }
+.ud-research-note svg { flex: 0 0 auto; color: #52815d; }
+.ud-feasibility-list, .ud-milestone-list { display: flex; flex-direction: column; gap: 10px; }
+.ud-feasibility-row { display: grid; grid-template-columns: minmax(120px,.7fr) minmax(120px,.7fr) minmax(220px,1.6fr) 26px; align-items: end; gap: 10px; padding: 12px; border: 1px solid #ebefeb; border-radius: 10px; background: #fcfdfc; }
+.ud-feasibility-row label { display: flex; flex-direction: column; gap: 6px; }
+.ud-feasibility-row .wide { min-width: 0; }
+.ud-feasibility-row input, .ud-feasibility-row select, .ud-feasibility-row textarea { padding: 8px 9px; font-size: 10px; }
+.ud-remove-item { width: 27px; height: 27px; display: grid; place-items: center; border: 0; border-radius: 6px; color: #839087; background: transparent; cursor: pointer; }
+.ud-remove-item:hover { color: #a54f47; background: #fff2f0; }
+.ud-add-item { align-self: flex-start; min-height: 31px; display: inline-flex; align-items: center; gap: 6px; padding: 0 10px; border: 1px dashed #cad9cc; border-radius: 7px; color: #39734b; background: #fbfdfb; font: inherit; font-size: 10px; cursor: pointer; }
+.ud-add-item:hover { border-color: #8cb998; background: #f3f8f3; }
+.ud-milestone-editor { display: flex; flex-direction: column; gap: 11px; padding: 13px; border: 1px solid #e8ede8; border-radius: 10px; background: #fcfdfc; }
+.ud-milestone-heading { display: flex; align-items: center; justify-content: space-between; }
+.ud-milestone-number { color: #468057; font-size: 10px; font-weight: 700; letter-spacing: .06em; }
+.ud-workflow-actions { align-items: center; justify-content: space-between; flex-wrap: wrap; }
+.ud-workflow-action-group { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 8px; }
+@media (max-width: 640px) { .ud-analysis-page .ud-stage-rail::before { left: 12.5%; right: 12.5%; } .ud-stage-rail { gap: 2px !important; } .ud-stage-rail > button { min-width: 0; flex: 1; } .ud-stage-rail small { font-size: 8px; } .ud-feasibility-row { grid-template-columns: 1fr 1fr 27px; } .ud-feasibility-row .wide { grid-column: 1 / 3; grid-row: 2; } .ud-feasibility-row > .ud-remove-item { grid-column: 3; grid-row: 1; } .ud-workflow-actions { align-items: stretch; } .ud-workflow-action-group { width: 100%; } .ud-workflow-action-group > button { flex: 1; } }
+
+/* Flight plan milestone editor */
+.ud-flightplan-content { gap: 19px; }
+.ud-flight-overview { padding: 18px; border: 1px solid #dfebe0; border-radius: 13px; background: linear-gradient(135deg, #f4f9f4, #fbfdfb 70%); }
+.ud-flight-overview > div { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.ud-flight-overview-icon { width: 34px; height: 34px; display: grid; place-items: center; border: 1px solid #dcebdd; border-radius: 10px; color: #277047; background: #eaf4eb; }
+.ud-flight-overview h3, .ud-flight-section-heading h3 { margin: 0; color: #24382a; font-size: 13px; font-weight: 650; }
+.ud-flight-overview p { margin: 3px 0 0; color: #829087; font-size: 10px; }
+.ud-flight-field { min-width: 0; display: flex; flex-direction: column; gap: 7px; }
+.ud-flight-field > span { color: #506156; font-size: 10px; font-weight: 650; }
+.ud-flight-field input, .ud-flight-field select, .ud-flight-field textarea { width: 100%; min-width: 0; padding: 10px 11px; border: 1px solid #e3eae3; border-radius: 8px; outline: none; color: #344239; background: #fff; font: inherit; font-size: 12px; line-height: 1.6; transition: border-color .16s ease, box-shadow .16s ease; }
+.ud-flight-field textarea { resize: vertical; }
+.ud-flight-field input:focus, .ud-flight-field select:focus, .ud-flight-field textarea:focus { border-color: #9fc6a7; box-shadow: 0 0 0 3px #4e9a6812; }
+.ud-flight-field input::placeholder, .ud-flight-field textarea::placeholder { color: #a0aaa2; }
+.ud-flight-section-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; padding: 0 2px; }
+.ud-flight-section-kicker { display: block; margin-bottom: 4px; color: #71927a; font-size: 9px; font-weight: 700; letter-spacing: .11em; }
+.ud-flight-section-heading h3 { font-size: 16px; letter-spacing: -.02em; }
+.ud-flight-count { padding: 5px 9px; border: 1px solid #e6eee6; border-radius: 20px; color: #64806a; background: #f8fbf8; font-size: 10px; }
+.ud-flight-milestone-list { display: flex; flex-direction: column; gap: 13px; }
+.ud-flight-milestone { overflow: hidden; border: 1px solid #e2eae2; border-radius: 13px; background: #fff; box-shadow: 0 3px 12px #17452a05; transition: border-color .18s ease, box-shadow .18s ease; }
+.ud-flight-milestone:hover, .ud-flight-milestone.is-open { border-color: #cfdfd0; box-shadow: 0 7px 22px #17452a09; }
+.ud-flight-milestone-head { display: flex; align-items: center; gap: 5px; min-height: 69px; padding: 10px 12px 10px 14px; background: linear-gradient(90deg, #f4f8f3 0, #fff 48%); }
+.ud-flight-milestone-toggle, .ud-flight-task-toggle { min-width: 0; flex: 1; display: flex; align-items: center; gap: 12px; padding: 2px 0; border: 0; color: inherit; background: transparent; text-align: left; cursor: pointer; }
+.ud-flight-milestone-index { width: 37px; height: 37px; flex: 0 0 auto; display: grid; place-items: center; border: 1px solid #d5e7d7; border-radius: 11px; color: #277146; background: #eaf4eb; font-size: 11px; font-weight: 750; letter-spacing: .04em; }
+.ud-flight-milestone-title { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 5px; }
+.ud-flight-milestone-title strong { overflow: hidden; color: #2c3d31; font-size: 13px; font-weight: 650; text-overflow: ellipsis; white-space: nowrap; }
+.ud-flight-milestone-title small { display: flex; align-items: center; gap: 7px; color: #87938a; font-size: 10px; }
+.ud-flight-milestone-title small i { width: 3px; height: 3px; border-radius: 50%; background: #b0bcb2; }
+.ud-flight-progress { flex: 0 0 auto; padding: 5px 8px; border-radius: 20px; color: #718176; background: #f3f6f3; font-size: 9px; }
+.ud-flight-chevron { flex: 0 0 auto; color: #839087; transition: transform .18s ease; }
+.is-open > .ud-flight-milestone-head .ud-flight-chevron, .ud-flight-task.is-open .ud-flight-chevron { transform: rotate(180deg); }
+.ud-flight-remove { width: 30px; height: 30px; flex: 0 0 auto; display: grid; place-items: center; border: 0; border-radius: 7px; color: #8a978d; background: transparent; cursor: pointer; transition: color .16s ease, background .16s ease; }
+.ud-flight-remove:hover { color: #a34f48; background: #fff1ef; }
+.ud-flight-milestone-body { padding: 16px; border-top: 1px solid #edf1ed; }
+.ud-flight-milestone-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; padding-bottom: 16px; }
+.ud-flight-field-wide { grid-column: 1 / -1; }
+.ud-flight-task-list { display: flex; flex-direction: column; gap: 9px; }
+.ud-flight-task { overflow: hidden; border: 1px solid #e9eee9; border-radius: 10px; background: #fcfdfc; }
+.ud-flight-task.is-open { border-color: #dce8dd; background: #fff; }
+.ud-flight-task-head { display: flex; align-items: center; gap: 4px; padding: 5px 7px 5px 12px; }
+.ud-flight-task-toggle { gap: 9px; min-height: 38px; }
+.ud-flight-task-dot { width: 7px; height: 7px; flex: 0 0 auto; border: 2px solid #78a783; border-radius: 50%; background: #f2f8f2; }
+.ud-flight-task-name { min-width: 50px; flex: 1; overflow: hidden; color: #405146; font-size: 11px; font-weight: 610; text-overflow: ellipsis; white-space: nowrap; }
+.ud-flight-priority { padding: 4px 7px; border-radius: 20px; font-size: 9px; white-space: nowrap; }
+.priority-high { color: #9a6247; background: #fbf1e9; }
+.priority-medium { color: #72814c; background: #f4f5e9; }
+.priority-low { color: #64836f; background: #edf5ef; }
+.ud-flight-effort { color: #87948a; font-size: 9px; white-space: nowrap; }
+.ud-flight-task-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; padding: 14px; border-top: 1px solid #edf1ed; background: #fff; }
+.ud-flight-add-task { min-height: 34px; display: inline-flex; align-items: center; gap: 7px; margin-top: 11px; padding: 0 10px; border: 1px dashed #cbdccc; border-radius: 8px; color: #3f7950; background: #f9fcf9; font: inherit; font-size: 10px; font-weight: 600; cursor: pointer; transition: border-color .16s ease, background .16s ease; }
+.ud-flight-add-task:hover { border-color: #93b99b; background: #f1f8f2; }
+.ud-flight-add-milestone { width: 100%; min-height: 60px; display: flex; align-items: center; gap: 11px; padding: 11px 15px; border: 1px dashed #bfd3c2; border-radius: 12px; color: #34744a; background: #f9fcf9; text-align: left; cursor: pointer; transition: border-color .16s ease, background .16s ease, transform .16s ease; }
+.ud-flight-add-milestone:hover { transform: translateY(-1px); border-color: #8db797; background: #f1f8f2; }
+.ud-flight-add-milestone > svg { width: 31px; height: 31px; padding: 7px; border-radius: 9px; color: #36774a; background: #eaf4eb; }
+.ud-flight-add-milestone span { display: flex; flex-direction: column; gap: 3px; }
+.ud-flight-add-milestone strong { font-size: 11px; font-weight: 650; }
+.ud-flight-add-milestone small { color: #829087; font-size: 9px; }
+@media (max-width: 640px) {
+  .ud-flight-overview { padding: 14px; }
+  .ud-flight-milestone-head { min-height: 62px; padding-left: 10px; }
+  .ud-flight-milestone-index { width: 33px; height: 33px; }
+  .ud-flight-milestone-title strong { font-size: 11px; }
+  .ud-flight-milestone-title small { font-size: 9px; }
+  .ud-flight-progress { display: none; }
+  .ud-flight-milestone-body { padding: 12px; }
+  .ud-flight-milestone-fields, .ud-flight-task-fields { grid-template-columns: 1fr; gap: 11px; }
+  .ud-flight-field-wide { grid-column: auto; }
+  .ud-flight-effort { display: none; }
+  .ud-flight-priority { font-size: 8px; }
+}
+
+.ud-research-report { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; gap: 14px; }
+.ud-research-section { min-width: 0; padding: 17px 17px 16px; border: 1px solid #e8eee8; border-radius: 12px; background: #fff; transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease; }
+.ud-research-section:hover { border-color: #d8e6d9; box-shadow: 0 5px 17px #17452a08; transform: translateY(-1px); }
+.ud-research-section.tone-questions { background: linear-gradient(145deg, #fbfdfb, #f5faf5); }
+.ud-research-section.tone-assumptions { background: linear-gradient(145deg, #fff, #f8faf7); }
+.ud-research-section.tone-actions { background: linear-gradient(145deg, #fbfdfb, #f5f9f6); }
+.ud-research-section-heading { display: flex; align-items: center; gap: 10px; min-width: 0; margin-bottom: 12px; }
+.ud-research-section-icon { width: 31px; height: 31px; flex: 0 0 auto; display: grid; place-items: center; border: 1px solid #e2ede3; border-radius: 9px; color: #34744a; background: #f0f7f1; }
+.ud-research-section-heading > div { min-width: 0; flex: 1; }
+.ud-research-section-heading h3 { margin: 0; color: #293b2f; font-size: 12px; font-weight: 640; line-height: 1.45; }
+.ud-research-section-heading small { display: block; margin-top: 2px; color: #859087; font-size: 9px; }
+.ud-research-edit { flex: 0 0 auto; min-height: 28px; display: inline-flex; align-items: center; gap: 5px; padding: 0 8px; border: 1px solid transparent; border-radius: 6px; color: #55735e; background: transparent; font: inherit; font-size: 10px; cursor: pointer; transition: background .16s ease, border-color .16s ease; }
+.ud-research-edit:hover { border-color: #e2ebe2; background: #f5f9f5; }
+.ud-research-paragraph { margin: 0; color: #56645a; font-size: 11px; line-height: 1.75; white-space: pre-wrap; overflow-wrap: anywhere; }
+.ud-research-list, .ud-research-sources { display: flex; flex-direction: column; gap: 9px; margin: 0; padding: 0; list-style: none; }
+.ud-research-list li { position: relative; padding-left: 15px; color: #56645a; font-size: 11px; line-height: 1.65; white-space: pre-wrap; overflow-wrap: anywhere; }
+.ud-research-list li::before { content: ""; position: absolute; top: .68em; left: 1px; width: 5px; height: 5px; border-radius: 50%; background: #78a383; }
+.tone-questions .ud-research-list li::before { background: #4b8760; }
+.tone-assumptions .ud-research-list li::before { background: #9aa47f; }
+.tone-actions .ud-research-list li::before { width: 6px; height: 3px; top: .67em; border-radius: 2px; background: #5a9870; }
+.ud-research-sources li { padding: 0 0 10px; border-bottom: 1px solid #edf1ed; }
+.ud-research-sources li:last-child { padding-bottom: 0; border-bottom: 0; }
+.ud-source-title { color: #35493a; font-size: 11px; font-weight: 610; line-height: 1.55; overflow-wrap: anywhere; }
+.ud-research-sources p { margin: 4px 0; color: #68766c; font-size: 10px; line-height: 1.6; white-space: pre-wrap; overflow-wrap: anywhere; }
+.ud-research-sources a, .ud-source-url { display: inline-block; max-width: 100%; color: #39754c; font-size: 10px; line-height: 1.6; overflow-wrap: anywhere; }
+.ud-research-sources a:hover { color: #175b37; text-decoration-thickness: 1px; }
+.ud-research-empty { margin: 0; color: #89948b; font-size: 10px; line-height: 1.6; }
+.ud-research-inline-editor { display: flex; flex-direction: column; gap: 9px; }
+.ud-research-inline-editor textarea { width: 100%; min-height: 108px; overflow: hidden; resize: none; padding: 10px 11px; border: 1px solid #dce8dd; border-radius: 8px; outline: none; color: #344239; background: #fcfdfc; font: inherit; font-size: 11px; line-height: 1.65; }
+.ud-research-inline-editor textarea:focus { border-color: #a9c9ae; box-shadow: 0 0 0 3px #4e9a6810; }
+.ud-research-inline-editor > p { margin: -3px 0 0; color: #819087; font-size: 9px; line-height: 1.5; }
+.ud-research-editor-actions { display: flex; justify-content: flex-end; gap: 7px; }
+.ud-research-cancel, .ud-research-save { min-height: 30px; display: inline-flex; align-items: center; justify-content: center; gap: 5px; padding: 0 9px; border: 1px solid #e5ebe5; border-radius: 6px; color: #607064; background: #fff; font: inherit; font-size: 10px; cursor: pointer; }
+.ud-research-cancel:hover { background: #f7f9f7; }
+.ud-research-save { border-color: #155f3c; color: #fff; background: #155f3c; }
+.ud-research-save:hover { background: #0f5232; }
+.ud-sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; clip-path: inset(50%); }
+@media (max-width: 640px) { .ud-research-report { grid-template-columns: minmax(0, 1fr); gap: 11px; } .ud-research-section { padding: 15px; } }
+
+/* ==========================================================================
+   FEASIBILITY REVIEW — POLISHED PROFESSIONAL STYLING & ACCENTS
+   ========================================================================== */
+
+.ud-feasibility-report {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  align-items: stretch;
+  gap: 16px;
+}
+
+.ud-feasibility-section {
+  grid-column: span 3;
+  display: flex;
+  flex-direction: column;
+  padding: 18px 20px 18px;
+  border-radius: 12px;
+  transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+  position: relative;
+}
+
+.ud-feasibility-section:hover {
+  transform: translateY(-2px);
+}
+
+.ud-feasibility-section .ud-research-section-heading {
+  margin-bottom: 14px;
+}
+
+.ud-feasibility-section .ud-research-section-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  transition: transform .18s ease;
+}
+
+.ud-feasibility-section:hover .ud-research-section-icon {
+  transform: scale(1.05);
+}
+
+.ud-feasibility-section .ud-research-section-heading h3 {
+  font-size: 13px;
+  font-weight: 650;
+  letter-spacing: -0.015em;
+}
+
+.ud-feasibility-section .ud-research-edit {
+  border-radius: 6px;
+  padding: 0 9px;
+  min-height: 28px;
+  font-weight: 600;
+  font-size: 10.5px;
+  transition: all .15s ease;
+}
+
+.ud-feasibility-section .ud-research-paragraph {
+  font-size: 12px;
+  line-height: 1.75;
+}
+
+.ud-feasibility-section .ud-research-list {
+  gap: 10px;
+}
+
+.ud-feasibility-section .ud-research-list li {
+  font-size: 12px;
+  line-height: 1.68;
+}
+
+/* 1. FEASIBILITY SUMMARY: subtle purple accents */
+.ud-feasibility-section.layout-summary {
+  grid-column: 1 / -1;
+  background: linear-gradient(145deg, #fbf9ff 0%, #f4effd 100%);
+  border: 1px solid #dfd3f4;
+  box-shadow: 0 4px 18px rgba(105, 65, 198, 0.04);
+}
+.ud-feasibility-section.layout-summary:hover {
+  border-color: #cebcee;
+  box-shadow: 0 7px 24px rgba(105, 65, 198, 0.08);
+}
+.ud-feasibility-section.layout-summary .ud-research-section-icon {
+  color: #6941c6;
+  background: #ede4fb;
+  border: 1px solid #dac4f7;
+}
+.ud-feasibility-section.layout-summary .ud-research-section-heading h3 {
+  color: #2e1c4e;
+}
+.ud-feasibility-section.layout-summary .ud-research-paragraph {
+  color: #443261;
+  font-size: 12.5px;
+}
+.ud-feasibility-section.layout-summary .ud-research-edit {
+  color: #6941c6;
+}
+.ud-feasibility-section.layout-summary .ud-research-edit:hover {
+  background: #ede3fa;
+  border-color: #d8c4f7;
+}
+
+/* 2. TECHNICAL FEASIBILITY: soft blue background accents with blue icons */
+.ud-feasibility-section.layout-technical {
+  grid-column: 1 / -1;
+  background: linear-gradient(145deg, #f7faff 0%, #edf4fc 100%);
+  border: 1px solid #cfe1f4;
+  box-shadow: 0 4px 18px rgba(24, 107, 181, 0.04);
+}
+.ud-feasibility-section.layout-technical:hover {
+  border-color: #b6d3ee;
+  box-shadow: 0 7px 24px rgba(24, 107, 181, 0.08);
+}
+.ud-feasibility-section.layout-technical .ud-research-section-icon {
+  color: #1565aa;
+  background: #e2eefa;
+  border: 1px solid #c7def4;
+}
+.ud-feasibility-section.layout-technical .ud-research-section-heading h3 {
+  color: #1a3956;
+}
+.ud-feasibility-section.layout-technical .ud-research-paragraph {
+  color: #2c475e;
+}
+.ud-feasibility-section.layout-technical .ud-research-edit {
+  color: #1565aa;
+}
+.ud-feasibility-section.layout-technical .ud-research-edit:hover {
+  background: #e3effa;
+  border-color: #c7def4;
+}
+
+/* 3. ADVANTAGES: soft green accents with green icons */
+.ud-feasibility-section.layout-advantages {
+  grid-column: span 3;
+  background: linear-gradient(145deg, #f7fbf8 0%, #ecf6ee 100%);
+  border: 1px solid #cbe5cf;
+  box-shadow: 0 4px 16px rgba(22, 104, 53, 0.04);
+}
+.ud-feasibility-section.layout-advantages:hover {
+  border-color: #b2dab8;
+  box-shadow: 0 7px 22px rgba(22, 104, 53, 0.08);
+}
+.ud-feasibility-section.layout-advantages .ud-research-section-icon {
+  color: #166835;
+  background: #def0e1;
+  border: 1px solid #c3e5c8;
+}
+.ud-feasibility-section.layout-advantages .ud-research-section-heading h3 {
+  color: #163f25;
+}
+.ud-feasibility-section.layout-advantages .ud-research-list li {
+  color: #264a32;
+  position: relative;
+  padding-left: 17px;
+}
+.ud-feasibility-section.layout-advantages .ud-research-list li::before {
+  content: "";
+  position: absolute;
+  top: .66em;
+  left: 2px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #1b7b3e;
+}
+.ud-feasibility-section.layout-advantages .ud-research-edit {
+  color: #166835;
+}
+.ud-feasibility-section.layout-advantages .ud-research-edit:hover {
+  background: #e0f2e3;
+  border-color: #c3e5c8;
+}
+
+/* 4. LIMITATIONS: soft red accents with red icons */
+.ud-feasibility-section.layout-limitations {
+  grid-column: span 3;
+  background: linear-gradient(145deg, #fdf8f8 0%, #fcf0f0 100%);
+  border: 1px solid #f2d1d1;
+  box-shadow: 0 4px 16px rgba(180, 35, 24, 0.04);
+}
+.ud-feasibility-section.layout-limitations:hover {
+  border-color: #e8b6b6;
+  box-shadow: 0 7px 22px rgba(180, 35, 24, 0.08);
+}
+.ud-feasibility-section.layout-limitations .ud-research-section-icon {
+  color: #b42318;
+  background: #fde8e8;
+  border: 1px solid #f6caca;
+}
+.ud-feasibility-section.layout-limitations .ud-research-section-heading h3 {
+  color: #4f1d1d;
+}
+.ud-feasibility-section.layout-limitations .ud-research-list li {
+  color: #5c3030;
+  position: relative;
+  padding-left: 17px;
+}
+.ud-feasibility-section.layout-limitations .ud-research-list li::before {
+  content: "";
+  position: absolute;
+  top: .66em;
+  left: 2px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #c33025;
+}
+.ud-feasibility-section.layout-limitations .ud-research-edit {
+  color: #b42318;
+}
+.ud-feasibility-section.layout-limitations .ud-research-edit:hover {
+  background: #fae4e4;
+  border-color: #f6caca;
+}
+
+/* 5. RISKS & MITIGATIONS: soft amber/orange accents with matching icons */
+.ud-feasibility-section.layout-risks {
+  grid-column: 1 / -1;
+  background: linear-gradient(145deg, #fdfbf7 0%, #fdf5ea 100%);
+  border: 1px solid #edd7b8;
+  box-shadow: 0 4px 18px rgba(181, 90, 0, 0.04);
+}
+.ud-feasibility-section.layout-risks:hover {
+  border-color: #dfc196;
+  box-shadow: 0 7px 24px rgba(181, 90, 0, 0.08);
+}
+.ud-feasibility-section.layout-risks .ud-research-section-icon {
+  color: #b55a00;
+  background: #faebd9;
+  border: 1px solid #f2d4b5;
+}
+.ud-feasibility-section.layout-risks .ud-research-section-heading h3 {
+  color: #4b300e;
+}
+.ud-feasibility-section.layout-risks .ud-research-edit {
+  color: #b55a00;
+}
+.ud-feasibility-section.layout-risks .ud-research-edit:hover {
+  background: #f8e8d4;
+  border-color: #f2d4b5;
+}
+
+/* Risk & Mitigation Cards */
+.ud-feasibility-risks {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+.ud-feasibility-risk {
+  min-width: 0;
+  padding: 15px;
+  border: 1px solid #edd9bd;
+  border-radius: 10px;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 2px 8px rgba(181, 90, 0, 0.04);
+  transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+}
+.ud-feasibility-risk:hover {
+  transform: translateY(-1px);
+  border-color: #debfa0;
+  box-shadow: 0 5px 16px rgba(181, 90, 0, 0.08);
+}
+.ud-risk-block {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.ud-risk-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2.5px 8px;
+  border-radius: 5px;
+  background: #fef1dd;
+  border: 1px solid #f8d7ab;
+  color: #a14e00;
+  font-size: 9.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  align-self: flex-start;
+}
+.ud-risk-title {
+  color: #3b2814;
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.ud-mitigation-block {
+  background: #f7fbf8;
+  border: 1px solid #d4ebda;
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.ud-mitigation-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2.5px 8px;
+  border-radius: 5px;
+  background: #e6f6ea;
+  border: 1px solid #c2e6cc;
+  color: #166835;
+  font-size: 9.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  align-self: flex-start;
+}
+.ud-mitigation-text {
+  margin: 0;
+  color: #274b33;
+  font-size: 11.5px;
+  line-height: 1.65;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* 6. MVP SCOPE CARD */
+.ud-feasibility-section.layout-scope {
+  grid-column: 1 / -1;
+  background: linear-gradient(145deg, #fbfcfc 0%, #f4f6f7 100%);
+  border: 1px solid #dce2e8;
+}
+.ud-feasibility-section.layout-scope:hover {
+  border-color: #cad3dc;
+  box-shadow: 0 6px 20px rgba(42, 85, 116, 0.06);
+}
+.ud-feasibility-section.layout-scope .ud-research-section-icon {
+  color: #225a7c;
+  background: #e6eef4;
+  border: 1px solid #cfe0ec;
+}
+.ud-mvp-scope-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.ud-scope-col {
+  padding: 14px;
+  border-radius: 9px;
+  min-width: 0;
+}
+.ud-scope-col.essential {
+  background: #f7faf8;
+  border: 1px solid #d9ebdc;
+}
+.ud-scope-col.postpone {
+  background: #fbfbfb;
+  border: 1px solid #eaeaea;
+}
+.ud-scope-col h4 {
+  margin: 0 0 10px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+.ud-scope-col.essential h4 {
+  color: #1b6838;
+}
+.ud-scope-col.postpone h4 {
+  color: #727a74;
+}
+.ud-mvp-rationale {
+  grid-column: 1 / -1;
+  padding-top: 12px;
+  border-top: 1px dashed #d5ded7;
+}
+.ud-mvp-rationale h4 {
+  margin: 0 0 6px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: #556658;
+}
+
+/* 7. RESOURCES, VALIDATION & MARKET DEMAND CARDS */
+.ud-feasibility-section.layout-resources,
+.ud-feasibility-section.layout-validation {
+  grid-column: span 3;
+  background: linear-gradient(145deg, #fbfcfb 0%, #f5f7f5 100%);
+  border: 1px solid #dce4dc;
+}
+.ud-feasibility-section.layout-resources:hover,
+.ud-feasibility-section.layout-validation:hover {
+  border-color: #cbd7cc;
+  box-shadow: 0 6px 20px rgba(35, 90, 50, 0.05);
+}
+.ud-feasibility-section.layout-resources .ud-research-section-icon,
+.ud-feasibility-section.layout-validation .ud-research-section-icon,
+.ud-feasibility-section.layout-market-demand .ud-research-section-icon {
+  color: #276239;
+  background: #eaf1eb;
+  border: 1px solid #d2e2d4;
+}
+.ud-feasibility-section.layout-market-demand {
+  grid-column: 1 / -1;
+  background: linear-gradient(145deg, #fbfcfb 0%, #f5f7f5 100%);
+  border: 1px solid #dce4dc;
+}
+
+/* Feasibility Inline Editor Form */
+.ud-feasibility-editor textarea {
+  min-height: 80px;
+}
+.ud-feasibility-editor label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.ud-feasibility-editor label > span {
+  color: #4b5d50;
+  font-size: 10.5px;
+  font-weight: 600;
+}
+.ud-feasibility-editor textarea, .ud-feasibility-editor input {
+  width: 100%;
+  padding: 9px 11px;
+  border: 1px solid #d6e2d8;
+  border-radius: 8px;
+  outline: none;
+  color: #2b3b30;
+  background: #ffffff;
+  font: inherit;
+  font-size: 11.5px;
+  line-height: 1.6;
+}
+.ud-feasibility-editor textarea:focus, .ud-feasibility-editor input:focus {
+  border-color: #287446;
+  box-shadow: 0 0 0 3px rgba(40, 116, 70, 0.12);
+}
+.ud-risk-edit-list, .ud-scope-edit-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.ud-risk-edit-row {
+  display: grid;
+  grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr) 30px;
+  align-items: end;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 8px;
+  background: #ffffff;
+  border: 1px solid #e2ece3;
+}
+.ud-scope-edit-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.ud-scope-edit-fields label:last-child {
+  grid-column: 1 / -1;
+}
+
+/* Responsive adjustments */
+@media (max-width: 860px) {
+  .ud-feasibility-report {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .ud-feasibility-section {
+    grid-column: span 1;
+  }
+  .ud-feasibility-section.layout-summary,
+  .ud-feasibility-section.layout-technical,
+  .ud-feasibility-section.layout-risks,
+  .ud-feasibility-section.layout-scope,
+  .ud-feasibility-section.layout-market-demand {
+    grid-column: 1 / -1;
+  }
+  .ud-feasibility-risks {
+    grid-template-columns: 1fr;
+  }
+  .ud-mvp-scope-content {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .ud-feasibility-report {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .ud-feasibility-section,
+  .ud-feasibility-section.layout-summary,
+  .ud-feasibility-section.layout-technical,
+  .ud-feasibility-section.layout-advantages,
+  .ud-feasibility-section.layout-limitations,
+  .ud-feasibility-section.layout-risks,
+  .ud-feasibility-section.layout-scope,
+  .ud-feasibility-section.layout-resources,
+  .ud-feasibility-section.layout-validation,
+  .ud-feasibility-section.layout-market-demand {
+    grid-column: 1;
+    padding: 15px;
+  }
+  .ud-feasibility-risks {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .ud-risk-edit-row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .ud-scope-edit-fields {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Launch Timing and Deadline Step */
+.ud-timing-grid { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 20px; align-items: start; margin-top: 6px; }
+.ud-timing-fields { display: flex; flex-direction: column; gap: 14px; }
+.ud-timing-fields label { display: flex; flex-direction: column; gap: 6px; }
+.ud-timing-fields label > span { color: #3d4c41; font-size: 11px; font-weight: 600; }
+.ud-timing-fields input, .ud-timing-fields select { width: 100%; min-height: 40px; padding: 9px 12px; border: 1px solid #dbe6dc; border-radius: 8px; outline: none; color: #233428; background: #fbfdfb; font: inherit; font-size: 12px; transition: border-color .15s, box-shadow .15s; }
+.ud-timing-fields input:focus, .ud-timing-fields select:focus { border-color: #277045; box-shadow: 0 0 0 3px rgba(39, 112, 69, 0.12); }
+.ud-timing-inline-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+.ud-timeline-preview-card { padding: 20px; border: 1px solid #d4e6d7; border-radius: 12px; background: linear-gradient(155deg, #f7faf7 0%, #edf6ef 100%); display: flex; flex-direction: column; gap: 16px; box-shadow: 0 4px 18px rgba(23, 107, 67, 0.05); }
+.ud-preview-header { display: flex; align-items: center; gap: 8px; color: #1e5a36; font-size: 12px; font-weight: 650; letter-spacing: 0.02em; }
+.ud-preview-metrics { display: flex; flex-direction: column; gap: 14px; }
+.ud-preview-stat { display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; }
+.ud-stat-number { font-size: 38px; font-weight: 750; color: #175430; line-height: 1; letter-spacing: -0.03em; font-family: 'Geist', Inter, sans-serif; }
+.ud-stat-unit { font-size: 13px; font-weight: 600; color: #326242; }
+.ud-preview-stat small { font-size: 11px; color: #627566; margin-left: 2px; }
+.ud-preview-capacity { padding: 10px 12px; background: rgba(255, 255, 255, 0.7); border: 1px solid #dce8dd; border-radius: 8px; display: flex; flex-direction: column; gap: 3px; }
+.ud-preview-capacity span { font-size: 10px; font-weight: 600; color: #637767; text-transform: uppercase; letter-spacing: 0.04em; }
+.ud-preview-capacity strong { font-size: 14px; color: #1b4b2c; font-weight: 650; }
+.ud-preview-capacity small { font-size: 10px; color: #728476; }
+
+.ud-pacing-badge { padding: 10px 12px; border-radius: 8px; font-size: 11px; display: flex; flex-direction: column; gap: 4px; }
+.ud-pacing-badge span { font-weight: 600; }
+.ud-pacing-badge p { margin: 0; font-size: 10px; line-height: 1.45; }
+.ud-pacing-badge.sprint { background: #fff8e8; border: 1px solid #f2dfb1; color: #805307; }
+.ud-pacing-badge.agile { background: #eaf6ee; border: 1px solid #c2e2ca; color: #1c6338; }
+.ud-pacing-badge.steady { background: #edf4fa; border: 1px solid #c9dfef; color: #1e527d; }
+
+.ud-preview-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 8px; padding: 28px 12px; color: #7c8e80; font-size: 11px; }
+
+@media (max-width: 680px) {
+  .ud-timing-grid { grid-template-columns: 1fr; }
+  .ud-timing-inline-fields { grid-template-columns: 1fr; }
+}
+
