@@ -5,10 +5,22 @@ from rest_framework.throttling import ScopedRateThrottle
 from rest_framework.exceptions import NotFound
 from django.shortcuts import get_object_or_404
 from django.db import transaction
+from django.db.models import Q
 from django.utils import timezone
+# pyrefly: ignore[missing-import]
 from apps.projects.models import ProjectDraft, ProjectStageGeneration, ProjectRepository, RoadmapAssessment, ProjectLearningState
 from .stage_generation import STAGE_ORDER, enqueue_stage_generation, mark_draft_generation_changes, serialize_generation, stage_input_hash, stage_prerequisite_ready
 from .roadmap_matcher import compare_roadmap_with_repository
+
+
+def authorized_project_drafts(request):
+    if request.user.is_authenticated:
+        user_email = (request.user.email or '').strip()
+        query = Q(owner=request.user) | Q(team_members__user=request.user)
+        if user_email:
+            query |= Q(team_members__email__iexact=user_email)
+        return ProjectDraft.objects.filter(query).distinct()
+    return ProjectDraft.objects.filter(owner__isnull=True)
 
 from .gemini_service import (
     GeminiConfigurationError,
@@ -76,7 +88,7 @@ class IdeaWorkflowStageView(APIView):
             values = dict(serializer.validated_data)
             project_id = values.pop('project_id', None)
             if project_id:
-                drafts = ProjectDraft.objects.filter(owner=request.user) if request.user.is_authenticated else ProjectDraft.objects.filter(owner__isnull=True)
+                drafts = authorized_project_drafts(request)
                 saved_project = get_object_or_404(drafts, pk=project_id)
                 supplied_details = values.pop('project_details', {})
                 saved_details = {'understanding': saved_project.understanding, **saved_project.workflow}
@@ -191,10 +203,7 @@ class ProjectDraftView(APIView):
     """Browser drafts have UUID bearer access until user auth is implemented."""
 
     def _drafts_for_request(self, request):
-        # Never allow anonymous requests to read or write a draft owned by an account.
-        if request.user.is_authenticated:
-            return ProjectDraft.objects.filter(owner=request.user)
-        return ProjectDraft.objects.filter(owner__isnull=True)
+        return authorized_project_drafts(request)
 
     def get(self, request, draft_id):
         draft = get_object_or_404(self._drafts_for_request(request), pk=draft_id)
@@ -223,9 +232,10 @@ class ProjectDraftView(APIView):
                     if generation:
                         next_workflow[stage] = previous_workflow.get(stage)
                 serializer.validated_data['workflow'] = next_workflow
-            draft = serializer.save(owner=request.user if request.user.is_authenticated else None, id=draft_id)
+            draft = serializer.save(owner=(existing.owner if existing and existing.owner_id else (request.user if request.user.is_authenticated else None)), id=draft_id)
+            # pyrefly: ignore[missing-import]
             from apps.core.team_workspace import ensure_member_slots
-            ensure_member_slots(draft)
+            ensure_member_slots(draft, current_user=request.user)
             mark_draft_generation_changes(draft, previous_workflow, edited_stages)
         return Response(ProjectDraftSerializer(draft).data, status=status.HTTP_200_OK if existing else status.HTTP_201_CREATED)
 
@@ -235,7 +245,7 @@ class ProjectDraftCollectionView(APIView):
     def get(self, request):
         if not request.user.is_authenticated:
             return Response({'results': []})
-        drafts = ProjectDraft.objects.filter(owner=request.user).select_related('repository')
+        drafts = authorized_project_drafts(request).select_related('repository')
         return Response({'results': ProjectDraftSerializer(drafts, many=True).data})
 
 
@@ -277,8 +287,7 @@ class ProjectLearningStateSerializer(serializers.ModelSerializer):
 
 
 def owned_project(request, draft_id):
-    drafts = ProjectDraft.objects.filter(owner=request.user) if request.user.is_authenticated else ProjectDraft.objects.filter(owner__isnull=True)
-    return get_object_or_404(drafts, pk=draft_id)
+    return get_object_or_404(authorized_project_drafts(request), pk=draft_id)
 
 
 class ProjectLearningStateView(APIView):
@@ -390,8 +399,7 @@ class ProjectLearningRecommendationsView(APIView):
 
 class ProjectStageGenerationView(APIView):
     def _draft(self, request, draft_id):
-        drafts = ProjectDraft.objects.filter(owner=request.user) if request.user.is_authenticated else ProjectDraft.objects.filter(owner__isnull=True)
-        return get_object_or_404(drafts, pk=draft_id)
+        return get_object_or_404(authorized_project_drafts(request), pk=draft_id)
 
     def get(self, request, draft_id, stage):
         if stage not in STAGE_ORDER:
@@ -496,9 +504,7 @@ class ProjectRepositoryView(APIView):
     """Manage GitHub repository association for a project draft."""
 
     def _drafts_for_request(self, request):
-        if request.user.is_authenticated:
-            return ProjectDraft.objects.filter(owner=request.user)
-        return ProjectDraft.objects.filter(owner__isnull=True)
+        return authorized_project_drafts(request)
 
     def get(self, request, draft_id):
         draft = get_object_or_404(self._drafts_for_request(request), pk=draft_id)
@@ -547,7 +553,7 @@ class UserRepositoriesView(APIView):
 
     def get(self, request):
         if request.user.is_authenticated:
-            repos = ProjectRepository.objects.filter(project__owner=request.user)
+            repos = ProjectRepository.objects.filter(project__in=authorized_project_drafts(request))
         else:
             repos = ProjectRepository.objects.filter(project__owner__isnull=True)
         return Response({'repositories': ProjectRepositorySerializer(repos, many=True).data}, status=status.HTTP_200_OK)
@@ -557,9 +563,7 @@ class ProjectRepositoryAnalysisView(APIView):
     """Save or retrieve the latest repository analysis for a project's repository."""
 
     def _drafts_for_request(self, request):
-        if request.user.is_authenticated:
-            return ProjectDraft.objects.filter(owner=request.user)
-        return ProjectDraft.objects.filter(owner__isnull=True)
+        return authorized_project_drafts(request)
 
     def get(self, request, draft_id):
         draft = get_object_or_404(self._drafts_for_request(request), pk=draft_id)
@@ -600,9 +604,7 @@ class RoadmapCompareRepositoryView(APIView):
     """
 
     def _drafts_for_request(self, request):
-        if request.user.is_authenticated:
-            return ProjectDraft.objects.filter(owner=request.user)
-        return ProjectDraft.objects.filter(owner__isnull=True)
+        return authorized_project_drafts(request)
 
     def post(self, request, draft_id):
         draft = get_object_or_404(self._drafts_for_request(request), pk=draft_id)
@@ -666,9 +668,7 @@ class RoadmapAssessmentView(APIView):
     """Retrieve the latest or revision-specific RoadmapAssessment for a project draft."""
 
     def _drafts_for_request(self, request):
-        if request.user.is_authenticated:
-            return ProjectDraft.objects.filter(owner=request.user)
-        return ProjectDraft.objects.filter(owner__isnull=True)
+        return authorized_project_drafts(request)
 
     def get(self, request, draft_id):
         draft = get_object_or_404(self._drafts_for_request(request), pk=draft_id)
@@ -688,9 +688,7 @@ class RoadmapTaskAssessmentCorrectionView(APIView):
     """
 
     def _drafts_for_request(self, request):
-        if request.user.is_authenticated:
-            return ProjectDraft.objects.filter(owner=request.user)
-        return ProjectDraft.objects.filter(owner__isnull=True)
+        return authorized_project_drafts(request)
 
     def patch(self, request, draft_id, task_id):
         draft = get_object_or_404(self._drafts_for_request(request), pk=draft_id)
@@ -805,13 +803,8 @@ class ProjectReplanSerializer(serializers.Serializer):
 
 
 class ProjectReplanView(APIView):
-    authentication_classes = []
-    permission_classes = []
-
     def _drafts_for_request(self, request):
-        if request.user.is_authenticated:
-            return ProjectDraft.objects.filter(owner=request.user)
-        return ProjectDraft.objects.filter(owner__isnull=True)
+        return authorized_project_drafts(request)
 
     def post(self, request, draft_id):
         draft = get_object_or_404(self._drafts_for_request(request), pk=draft_id)

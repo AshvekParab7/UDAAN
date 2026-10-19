@@ -242,7 +242,7 @@ class TeamWorkspaceTests(TestCase):
             self.assertTrue(TeamMember.objects.get(project=project, slot=1).is_creator)
             self.assertEqual(TeamMember.objects.filter(project=project).count(), 1)
 
-    def test_roadmap_sync_allocates_persists_and_task_status_updates_member_progress(self):
+    def test_roadmap_sync_leaves_assignments_unchanged_until_a_review_is_approved(self):
         client = APIClient()
         project = self.make_project(3)
         workspace_url = f'/api/projects/drafts/{project.id}/team-workspace/'
@@ -251,7 +251,20 @@ class TeamWorkspaceTests(TestCase):
         self.assertEqual(sync.status_code, 200)
         self.assertEqual(ProjectTask.objects.filter(project=project, active=True).count(), 2)
         task = ProjectTask.objects.filter(project=project, active=True).first()
-        self.assertIsNotNone(task.assigned_to_id)
+        self.assertIsNone(task.assigned_to_id)
+        member = TeamMember.objects.get(project=project, is_creator=True)
+        member.skills = ['Python']
+        member.save(update_fields=['skills'])
+        proposal = client.post(workspace_url + 'allocation-proposals/', {}, format='json')
+        self.assertEqual(proposal.status_code, 201)
+        task.refresh_from_db()
+        self.assertIsNone(task.assigned_to_id)
+        approved = client.post(workspace_url + f"allocation-proposals/{proposal.json()['id']}/approve/", {'assignments': [
+            {'task_id': row['task_id'], 'member_id': member.id if row['task_id'] == task.id else None} for row in proposal.json()['assignments']
+        ]}, format='json')
+        self.assertEqual(approved.status_code, 200)
+        task.refresh_from_db()
+        self.assertEqual(task.assigned_to_id, member.id)
         response = client.patch(workspace_url + f'tasks/{task.id}/', {'status': 'completed', 'effort_hours': 8}, format='json')
         self.assertEqual(response.status_code, 200)
         persisted = client.get(workspace_url).json()
@@ -295,6 +308,10 @@ class TeamWorkspaceTests(TestCase):
         token = invitation['invite_link'].rsplit('/', 1)[-1]
         public_url = f'/api/team/invitations/{token}/'
         self.assertEqual(client.get(public_url).status_code, 200)
+        self.assertEqual(client.post(public_url, {'decision': 'accept'}, format='json').status_code, 401)
+        from django.contrib.auth import get_user_model
+        invitee = get_user_model().objects.create_user(username='member-invitee', email='member@example.com', password='safe-test-password')
+        client.force_authenticate(invitee)
         accepted = client.post(public_url, {'decision': 'accept'}, format='json')
         self.assertEqual(accepted.status_code, 200)
         self.assertEqual(accepted.json()['status'], 'accepted')
@@ -338,6 +355,9 @@ class TeamWorkspaceTests(TestCase):
         base = f'/api/projects/drafts/{project.id}/team-workspace/'
         invited = client.post(base + 'invitations/', {'invitees': [{'email': 'designer@example.com'}]}, format='json')
         token = invited.json()['invitations'][0]['invite_link'].rsplit('/', 1)[-1]
+        from django.contrib.auth import get_user_model
+        invitee = get_user_model().objects.create_user(username='designer-invitee', email='designer@example.com', password='safe-test-password')
+        client.force_authenticate(invitee)
         accepted = client.post(f'/api/team/invitations/{token}/', {'decision': 'accept'}, format='json')
         member_id = accepted.json()['member']['id']
         saved = client.patch(base + f'members/{member_id}/', {
@@ -356,7 +376,10 @@ class TeamWorkspaceTests(TestCase):
         self.assertEqual(removed.status_code, 204)
         task.refresh_from_db()
         self.assertIsNone(task.assigned_to_id)
-        self.assertEqual(client.get(base).json()['project']['team_size'], 3)
+        client.force_authenticate(user=None)
+        final_workspace = client.get(base).json()
+        self.assertEqual(final_workspace['project']['team_size'], 3)
+        self.assertEqual(len(final_workspace['members']), 1)
 
     def test_capacity_reserves_pending_invitations_and_cancel_frees_it(self):
         client = APIClient()
@@ -415,6 +438,42 @@ class TeamWorkspaceTests(TestCase):
         self.assertEqual(invite['delivery'], 'failed')
         self.assertTrue(invite['invite_link'])
 
+    def test_authenticated_team_members_can_read_project_but_unrelated_users_cannot(self):
+        from django.contrib.auth import get_user_model
+        project = self.make_project(2)
+        owner_client = APIClient()
+        invitation = owner_client.post(f'/api/projects/drafts/{project.id}/team-workspace/invitations/', {'invitees': [{'email': 'joiner@example.com'}]}, format='json').json()['invitations'][0]
+        token = invitation['invite_link'].rsplit('/', 1)[-1]
+        joiner = get_user_model().objects.create_user(username='authorized-joiner', email='joiner@example.com')
+        joined_client = APIClient()
+        joined_client.force_authenticate(joiner)
+        accepted = joined_client.post(f'/api/team/invitations/{token}/', {'decision': 'accept'}, format='json')
+        self.assertEqual(accepted.status_code, 200)
+        self.assertEqual(joined_client.get(f'/api/projects/drafts/{project.id}/').status_code, 200)
+        self.assertEqual(joined_client.get(f'/api/projects/drafts/{project.id}/team-workspace/').status_code, 200)
+        outsider = get_user_model().objects.create_user(username='unauthorized-outsider')
+        outsider_client = APIClient()
+        outsider_client.force_authenticate(outsider)
+        self.assertEqual(outsider_client.get(f'/api/projects/drafts/{project.id}/team-workspace/').status_code, 404)
+
+    def test_allocation_proposal_stales_after_team_changes_without_modifying_tasks(self):
+        from apps.teams.models import TeamMember
+        project = self.make_project(3)
+        base = f'/api/projects/drafts/{project.id}/team-workspace/'
+        client = APIClient()
+        client.get(base)
+        client.post(base + 'sync-roadmap/', {'confirm': True}, format='json')
+        proposal = client.post(base + 'allocation-proposals/', {}, format='json')
+        self.assertEqual(proposal.status_code, 201)
+        task = ProjectTask.objects.filter(project=project, active=True).first()
+        self.assertIsNone(task.assigned_to_id)
+        TeamMember.objects.create(project=project, slot=2, name='New teammate', skills=['Python'])
+        rejected = client.post(base + f"allocation-proposals/{proposal.json()['id']}/approve/", {}, format='json')
+        self.assertEqual(rejected.status_code, 409)
+        self.assertEqual(rejected.json()['code'], 'proposal_stale')
+        task.refresh_from_db()
+        self.assertIsNone(task.assigned_to_id)
+
     def test_authenticated_owner_access_is_scoped_to_account(self):
         from django.contrib.auth import get_user_model
         from apps.projects.models import ProjectDraft
@@ -428,6 +487,81 @@ class TeamWorkspaceTests(TestCase):
         other_client.force_authenticate(user=other)
         self.assertEqual(owner_client.get(f'/api/projects/drafts/{draft.id}/').status_code, 200)
         self.assertEqual(other_client.get(f'/api/projects/drafts/{draft.id}/').status_code, 404)
+
+    def test_authenticated_github_user_session_csrf_access_to_team_workspace(self):
+        from django.test import Client
+        from django.contrib.auth import get_user_model
+        user = get_user_model().objects.create_user(username='github-999999', email='ashvek@example.com')
+        project = self.make_project(3)
+        project.owner = user
+        project.save(update_fields=['owner'])
+
+        client = Client(enforce_csrf_checks=True, headers={'host': '127.0.0.1:8000'})
+        client.force_login(user)
+
+        workspace_url = f'/api/projects/drafts/{project.id}/team-workspace/'
+        get_res = client.get(workspace_url)
+        self.assertEqual(get_res.status_code, 200)
+        self.assertTrue(get_res.json()['project']['is_owner'])
+        csrf_cookie = client.cookies.get('csrftoken')
+        self.assertIsNotNone(csrf_cookie)
+        token = csrf_cookie.value
+        self.assertTrue(bool(token))
+
+        post_url = workspace_url + 'sync-roadmap/'
+        no_csrf_res = client.post(post_url, {'preview': True}, content_type='application/json')
+        self.assertEqual(no_csrf_res.status_code, 403)
+        self.assertIn('CSRF', str(no_csrf_res.content))
+
+        csrf_res = client.post(post_url, {'preview': True}, content_type='application/json', HTTP_X_CSRFTOKEN=token)
+        self.assertEqual(csrf_res.status_code, 200)
+
+    def test_joined_member_can_access_workspace_and_sync_preview_but_cannot_invite_or_approve(self):
+        from django.test import Client
+        from django.contrib.auth import get_user_model
+        from apps.core.team_workspace import create_invitation
+        owner = get_user_model().objects.create_user(username='owner-user', email='owner@example.com')
+        joiner = get_user_model().objects.create_user(username='github-joiner', email='joiner@example.com')
+        project = self.make_project(3)
+        project.owner = owner
+        project.save(update_fields=['owner'])
+
+        invitation = create_invitation(project, None, {'email': 'joiner@example.com', 'name': 'Joiner'})
+        token = invitation['invite_link'].rsplit('/', 1)[-1]
+        joiner_client = Client(headers={'host': '127.0.0.1:8000'})
+        joiner_client.force_login(joiner)
+        accept_res = joiner_client.post(f'/api/team/invitations/{token}/', {'decision': 'accept'}, content_type='application/json')
+        self.assertEqual(accept_res.status_code, 200)
+
+        workspace_url = f'/api/projects/drafts/{project.id}/team-workspace/'
+        res = joiner_client.get(workspace_url)
+        self.assertEqual(res.status_code, 200)
+        self.assertFalse(res.json()['project']['is_owner'])
+
+        sync_res = joiner_client.post(workspace_url + 'sync-roadmap/', {'preview': True}, content_type='application/json')
+        self.assertEqual(sync_res.status_code, 200)
+
+        patch_res = joiner_client.patch(workspace_url, {'team_size': 5}, content_type='application/json')
+        self.assertEqual(patch_res.status_code, 403)
+        self.assertEqual(patch_res.json()['code'], 'permission_denied')
+
+        invite_res = joiner_client.post(workspace_url + 'invitations/', {'invitees': [{'email': 'other@example.com'}]}, content_type='application/json')
+        self.assertEqual(invite_res.status_code, 403)
+        self.assertEqual(invite_res.json()['code'], 'permission_denied')
+
+    def test_auth_csrf_endpoint_provides_token_and_sets_cookie(self):
+        from django.test import Client
+        client = Client(enforce_csrf_checks=True, headers={'host': '127.0.0.1:8000'})
+        res = client.get('/api/auth/csrf/')
+        self.assertEqual(res.status_code, 200)
+        token = res.json().get('csrf_token')
+        self.assertTrue(bool(token))
+        cookie = client.cookies.get('csrftoken')
+        self.assertIsNotNone(cookie)
+        self.assertTrue(bool(cookie.value))
+        # Ensure token works for mutating requests under CSRF enforcement
+        logout_res = client.post('/api/auth/logout/', HTTP_X_CSRFTOKEN=token)
+        self.assertEqual(logout_res.status_code, 200)
 
     @patch('apps.core.idea_views.generate_idea_stage')
     def test_ai_stage_uses_the_saved_project_context(self, generate):
@@ -701,6 +835,29 @@ class GeminiPayloadFormatTests(SimpleTestCase):
         self.assertEqual(config.get('responseMimeType'), 'application/json')
         self.assertNotIn('responseFormat', config)
         self.assertIn('responseSchema', config)
+
+
+class GeminiTaskAllocationTests(SimpleTestCase):
+    @patch.dict(os.environ, {'GEMINI_API_KEY': 'test-key', 'GEMINI_MODEL': 'test-model', 'GEMINI_FALLBACK_MODELS': ''})
+    @patch('apps.core.gemini_service._generate_content')
+    def test_structured_allocation_is_validated_against_real_task_and_member_ids(self, generate):
+        from .gemini_service import generate_task_allocation
+        output = {'summary': 'Skills match.', 'assignments': [{'task_id': 10, 'member_id': 3, 'reason': 'Python skill match.', 'matched_skills': ['Python'], 'skill_gaps': []}]}
+        generate.return_value = {'candidates': [{'content': {'parts': [{'text': json.dumps(output)}]}, 'finishReason': 'STOP'}]}
+        result = generate_task_allocation(project={'name': 'Demo'}, tasks=[{'id': 10, 'title': 'Build API'}], members=[{'id': 3, 'skills': ['Python']}])
+        self.assertEqual(result['assignments'][0]['member_id'], 3)
+        config = generate.call_args.args[0]['generationConfig']
+        self.assertEqual(config['responseMimeType'], 'application/json')
+        self.assertIn('responseSchema', config)
+
+    @patch.dict(os.environ, {'GEMINI_API_KEY': 'test-key', 'GEMINI_MODEL': 'test-model', 'GEMINI_FALLBACK_MODELS': ''})
+    @patch('apps.core.gemini_service._generate_content')
+    def test_gemini_cannot_assign_a_non_member(self, generate):
+        from .gemini_service import generate_task_allocation
+        output = {'summary': 'Suggested.', 'assignments': [{'task_id': 10, 'member_id': 999, 'reason': 'Match.', 'matched_skills': [], 'skill_gaps': []}]}
+        generate.return_value = {'candidates': [{'content': {'parts': [{'text': json.dumps(output)}]}, 'finishReason': 'STOP'}]}
+        with self.assertRaisesRegex(GeminiRequestError, 'member who has not joined'):
+            generate_task_allocation(project={}, tasks=[{'id': 10}], members=[{'id': 3}])
 
 
 class ProjectRepositoryAssociationTests(TestCase):

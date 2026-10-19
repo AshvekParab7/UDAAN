@@ -36,7 +36,8 @@
 .ud-nav a[aria-current="page"]::before { position: absolute; left: 0; top: 9px; bottom: 9px; width: 3px; border-radius: 0 3px 3px 0; background: #fff; content: ''; }
 .ud-nav a[aria-current="page"] svg { color: #fff; }
 .ud-profile { min-height: 68px; display: flex; align-items: center; gap: 10px; padding: 12px 15px; border-top: 1px solid #ffffff26; background: #0f5c3b3d; }
-.ud-avatar { width: 34px; height: 34px; flex: 0 0 auto; display: grid; place-items: center; border: 1px solid #ffffff4a; border-radius: 50%; color: #fff; background: #ffffff20; font-size: 10px; font-weight: 700; }
+.ud-avatar { width: 34px; height: 34px; flex: 0 0 auto; display: grid; place-items: center; border: 1px solid #ffffff4a; border-radius: 50%; color: #fff; background: #ffffff20; font-size: 10px; font-weight: 700; overflow: hidden; }
+.ud-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: block; }
 .ud-profile-copy { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 2px; }
 .ud-profile-copy strong { overflow: hidden; color: #fff; font-size: 11px; font-weight: 620; text-overflow: ellipsis; white-space: nowrap; }
 .ud-profile-copy span { color: #c2dfcd; font-size: 10px; }

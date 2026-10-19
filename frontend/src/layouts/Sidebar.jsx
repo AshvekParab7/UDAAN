@@ -1,6 +1,9 @@
-import { AlertCircle, BookOpen, ChevronDown, Code2, FolderOpen, Gauge, LogOut, Megaphone, Rocket, Settings, ShieldCheck, Users, X } from 'lucide-react'
+import { AlertCircle, BookOpen, ChevronDown, Code2, FolderOpen, Gauge, LogOut, Megaphone, Rocket, ShieldCheck, UserRound, Users, X } from 'lucide-react'
 import { NavLink } from 'react-router-dom'
 import './Sidebar.css'
+import { Link } from 'react-router-dom'
+import { useAuth } from '../app/AuthContext.jsx'
+import { logoutAccount } from '../services/authService.js'
 
 const navigation = [
   { label: 'Overview', icon: Gauge, to: '/' },
@@ -12,10 +15,15 @@ const navigation = [
   { label: 'Learning', icon: BookOpen, to: '/learning' },
   { label: 'Verification & Readiness', icon: ShieldCheck, to: '/verification' },
   { label: 'Marketing Studio', icon: Megaphone, to: '/marketing-studio' },
-  { label: 'Settings', icon: Settings, to: '/settings' },
+  { label: 'Developer profile', icon: UserRound, to: '/profile' },
 ]
 
 export default function Sidebar({ open = false, onClose = () => {} }) {
+  const { auth, refresh } = useAuth()
+  const displayName = auth.user?.name || 'Connect GitHub'
+  const initials = displayName.split(/\s+/).map(part => part[0]).join('').slice(0, 2).toUpperCase()
+  const avatarUrl = auth.profile?.avatar_url || ''
+  const logout = async () => { try { await logoutAccount(); await refresh() } catch { /* Current API session will expire normally. */ } }
   return <>
     {open && <button className="ud-sidebar-backdrop" aria-label="Close navigation" onClick={onClose} />}
     <aside className={`ud-sidebar ${open ? 'is-open' : ''}`} aria-label="UDAAN workspace navigation">
@@ -40,8 +48,8 @@ export default function Sidebar({ open = false, onClose = () => {} }) {
         </nav>
       </div>
       <div className="ud-profile">
-        <div className="ud-avatar" aria-hidden="true">TS</div><div className="ud-profile-copy"><strong>Tara Sharma</strong><span>My account</span></div>
-        <button className="ud-icon-button" type="button" aria-label="Account options"><LogOut size={17} /></button>
+        <div className="ud-avatar" aria-hidden="true">{avatarUrl ? <img src={avatarUrl} alt="" /> : (initials || 'U')}</div><div className="ud-profile-copy"><strong>{displayName}</strong><Link to="/profile" onClick={onClose}>{auth.authenticated ? 'Developer profile' : 'Sign in with GitHub'}</Link></div>
+        {auth.authenticated && <button className="ud-icon-button" type="button" aria-label="Sign out" onClick={() => void logout()}><LogOut size={17} /></button>}
       </div>
     </aside>
   </>

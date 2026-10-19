@@ -1,9 +1,9 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { AlertTriangle, Check, ChevronDown, Clock3, Copy, Filter, Mail, Menu, Plus, RefreshCw, Save, Send, Users, X } from 'lucide-react'
+import { AlertTriangle, Check, ChevronDown, Clock3, Copy, Filter, Github, Mail, Menu, Plus, RefreshCw, Save, Send, Sparkles, Users, X } from 'lucide-react'
 import Sidebar from '../layouts/Sidebar.jsx'
 import { readSavedProjects, updateSavedProject } from '../services/projectStorage.js'
-import { applyRoadmapSync, createTeamInvitations, getTeamWorkspace, manageTeamInvitation, previewRoadmapSync, removeTeamMember, updateTeamMember, updateTeamSize, updateTeamTask } from '../services/teamService.js'
+import { applyRoadmapSync, approveAllocationProposal, createTeamInvitations, generateAllocationProposal, getTeamWorkspace, manageTeamInvitation, previewRoadmapSync, removeTeamMember, updateTeamMember, updateTeamSize, updateTeamTask } from '../services/teamService.js'
 
 const statusLabels = { not_started: 'Not Started', in_progress: 'In Progress', blocked: 'Blocked', completed: 'Completed' }
 const priorityLabels = { high: 'High', medium: 'Medium', low: 'Low' }
@@ -21,6 +21,8 @@ function MemberCard({ member, onSave, onRemove }) {
       <label>Skills<input value={form.skills} onChange={e => setForm({ ...form, skills: e.target.value })} placeholder="React, research, ..." /></label>
     </div>
     <div className="tw-member-stats"><span><b>{member.task_count}</b> tasks</span><span><b>{member.workload_hours}h</b> estimated</span><span><b>{member.progress}%</b> complete</span></div>
+    <div className="tw-member-profile"><Github size={13} />{member.github_connected ? <span>GitHub profile @{member.github_login} · {member.profile_analysis_status} analysis</span> : <span>Using manually declared skills{member.user_id ? ' · GitHub profile not connected' : ''}</span>}</div>
+    {(member.profile_skills?.length || member.github_technologies?.length) > 0 && <div className="tw-member-evidence"><b>Profile skills</b> {[...new Set([...(member.profile_skills || []), ...(member.github_technologies || []).map(item => item.name)])].join(' · ')}</div>}
     <div className="tw-work-meter"><i style={{ width: `${Math.min(member.workload_hours / 40 * 100, 100)}%` }} /></div>
     <div className="tw-member-actions"><button className="tw-live-save" onClick={save}><Save size={14} /> Save member</button>{!member.is_creator && <button className="tw-member-remove" onClick={() => onRemove(member)}>Remove</button>}</div>
   </article>
@@ -81,16 +83,31 @@ export default function TeamWorkspace() {
   const [inviteOpen, setInviteOpen] = useState(false)
   const [inviteBusy, setInviteBusy] = useState(false)
   const [invitationLinks, setInvitationLinks] = useState({})
+  const [allocationBusy, setAllocationBusy] = useState(false)
+  const [allocationEdits, setAllocationEdits] = useState([])
+  const automaticAllocationProjects = useRef(new Set())
 
   const loadWorkspace = useCallback(async () => {
     if (!projectId) { setWorkspace(null); return }
     setLoading(true); setError('')
     try {
-      const data = await getTeamWorkspace(projectId)
-      setWorkspace(data); setTeamSize(data.project.team_size || 1)
+      let data = await getTeamWorkspace(projectId)
       const preview = await previewRoadmapSync(projectId)
       if (preview.requires_confirmation) setRoadmapChanges(preview.changes)
-      else setRoadmapChanges(null)
+      else {
+        setRoadmapChanges(null)
+        if (!data.tasks.length && data.project.has_roadmap) {
+          await applyRoadmapSync(projectId)
+          data = await getTeamWorkspace(projectId)
+        }
+      }
+      if (data.project.is_owner && data.tasks.length && !data.allocation_proposal && !automaticAllocationProjects.current.has(projectId)) {
+        automaticAllocationProjects.current.add(projectId)
+        try { data = { ...data, allocation_proposal: await generateAllocationProposal(projectId) } }
+        catch (err) { setError(err.message || 'Tasks are synced; generate their allocation proposal when ready.') }
+      }
+      setWorkspace(data); setTeamSize(data.project.team_size || 1)
+      setAllocationEdits((data.allocation_proposal?.assignments || []).map(row => ({ task_id: row.task_id, member_id: row.member_id || null })))
     } catch (err) { setError(err.message || 'Could not load this project workspace.') }
     finally { setLoading(false) }
   }, [projectId])
@@ -128,7 +145,21 @@ export default function TeamWorkspace() {
     try { const result = await updateTeamSize(projectId, teamSize); setWorkspace(current => ({ ...current, members: result.members, project: { ...current.project, team_size: result.team_size } })); updateSavedProject(projectId, { teamSize: result.team_size }); setNotice('Team size updated.') }
     catch (err) { if (err.status === 409 && err.assigned_tasks) setError(`Reassign ${err.assigned_tasks.map(t => t.title).join(', ')} before removing those member slots.`); else setError(err.message) }
   }
-  const reconcileRoadmap = async () => { try { await applyRoadmapSync(projectId); setRoadmapChanges(null); await refresh('Roadmap changes reviewed and synced. Existing task progress and assignments were preserved where possible.') } catch (err) { setError(err.message) } }
+  const reconcileRoadmap = async () => { try { await applyRoadmapSync(projectId); setRoadmapChanges(null); await refresh('Roadmap changes reviewed and synced. Existing task progress and assignments were preserved where possible.'); await createAllocationProposal() } catch (err) { setError(err.message) } }
+  const createAllocationProposal = async () => {
+    setAllocationBusy(true); setError(''); setNotice('')
+    try { const proposal = await generateAllocationProposal(projectId); setWorkspace(current => current ? { ...current, allocation_proposal: proposal } : current); setAllocationEdits(proposal.assignments.map(row => ({ task_id: row.task_id, member_id: row.member_id || null }))); setNotice(proposal.source === 'heuristic' ? 'AI was unavailable. A skills and workload suggestion is ready for review.' : 'Proposed task assignments are ready for review. Existing assignments are unchanged.') }
+    catch (err) { setError(err.message || 'Could not prepare a task allocation proposal.') }
+    finally { setAllocationBusy(false) }
+  }
+  const approveAllocation = async () => {
+    const proposal = workspace?.allocation_proposal
+    if (!proposal) return
+    setAllocationBusy(true); setError('')
+    try { await approveAllocationProposal(projectId, proposal.id, allocationEdits); await refresh('Reviewed task assignments were approved and saved.') }
+    catch (err) { if (err.code === 'proposal_stale') setError(`${err.message} Your current assignments have not been changed.`); else setError(err.message || 'Could not approve these assignments.') }
+    finally { setAllocationBusy(false) }
+  }
   const members = workspace?.members || []
   const tasks = workspace?.tasks || []
   const visibleTasks = useMemo(() => tasks.filter(task => (!filters.member || String(task.assigned_to || '') === filters.member) && (!filters.priority || task.priority === filters.priority) && (!filters.status || task.status === filters.status) && (!filters.milestone || task.milestone === filters.milestone) && `${task.title} ${task.description} ${task.milestone}`.toLowerCase().includes(filters.query.toLowerCase())), [tasks, filters])
@@ -139,6 +170,7 @@ export default function TeamWorkspace() {
   const invitations = workspace?.invitations || []
   const pendingInvitations = invitations.filter(invite => invite.status === 'pending')
   const remainingCapacity = workspace?.project.remaining_capacity ?? Math.max(0, teamSize - members.length - pendingInvitations.length)
+  const proposedWorkloads = members.map(member => ({ member, hours: allocationEdits.filter(row => row.member_id === member.id).reduce((sum, row) => sum + Number(workspace?.allocation_proposal?.assignments?.find(task => task.task_id === row.task_id)?.effort_hours || 0), 0) }))
 
   return <div className="ud-dashboard tw-page"><Sidebar activePage="team" open={menuOpen} onClose={() => setMenuOpen(false)} /><div className="ud-work-area">
     <header className="ud-topbar"><div className="ud-topbar-left"><button className="ud-mobile-menu ud-icon-button" aria-label="Open navigation" onClick={() => setMenuOpen(true)}><Menu size={20} /></button><span className="tw-breadcrumb">Workspace <span>/</span> <b>Team</b></span></div><div className="ud-topbar-actions"><button className="tw-refresh" onClick={() => void loadWorkspace()} disabled={loading}><RefreshCw size={15} /> Refresh</button></div></header>
@@ -149,7 +181,13 @@ export default function TeamWorkspace() {
       {roadmapChanges && <section className="tw-roadmap-review"><div><b>Flight Plan changes need review</b><p>{roadmapChanges.new.length} new · {roadmapChanges.modified.length} changed · {roadmapChanges.removed.length} removed. Applying updates keeps existing assignments and task progress wherever tasks still match.</p><div className="tw-change-details">{[['New', roadmapChanges.new], ['Changed', roadmapChanges.modified], ['Removed', roadmapChanges.removed]].filter(([, rows]) => rows.length).map(([label, rows]) => <p key={label}><strong>{label}:</strong> {rows.map(row => `${row.milestone} / ${row.title}`).join(' · ')}</p>)}</div></div><button onClick={reconcileRoadmap}>Apply reviewed changes</button></section>}
       {!projectId ? <div className="tw-live-empty"><Users size={25} /><h2>No projects yet</h2><p>Create a project and Flight Plan first. Your team slots and tasks will appear here.</p></div> : loading && !workspace ? <div className="tw-live-empty">Loading project workspace…</div> : workspace && <>
         <section className="tw-overview-grid"><article><span>Joined members</span><strong>{members.length}<small> / {workspace.project.team_size}</small></strong><small>{pendingInvitations.length} pending invitation{pendingInvitations.length === 1 ? '' : 's'}</small></article><article><span>Assigned tasks</span><strong>{assigned}<small> / {tasks.length}</small></strong><small>{tasks.length - assigned} unassigned</small></article><article><span>Completed</span><strong>{completed}<small> / {tasks.length}</small></strong><small>{tasks.length ? Math.round(completed / tasks.length * 100) : 0}% of roadmap tasks</small></article><article><span>Estimated workload</span><strong>{totalHours}<small>h</small></strong><small>Across all active tasks</small></article></section>
-        <section className="tw-members-panel"><div className="tw-live-section-head"><div><span className="tw-live-eyebrow">PEOPLE</span><h2>Team members</h2></div><div className="tw-team-actions"><span className="tw-capacity-copy">{members.length} of {workspace.project.team_size} members joined · {remainingCapacity} capacity remaining</span><div className="tw-size-control"><label>Capacity<input type="number" min="1" max="50" value={teamSize} onChange={e => setTeamSize(Math.max(1, Number(e.target.value) || 1))} /></label><button onClick={changeSize}>Update</button></div><button className="tw-invite-button" onClick={() => setInviteOpen(true)} disabled={remainingCapacity < 1}><Plus size={16} /> Invite members</button></div></div><p className="tw-panel-hint">Team size sets capacity. Members appear here after accepting a secure invitation.</p>{members.length ? <div className="tw-live-member-grid">{members.map(member => <MemberCard key={member.id} member={member} onSave={saveMember} onRemove={removeMember} />)}</div> : <div className="tw-member-empty"><Users size={18} /><div><b>No joined members yet</b><span>Invite teammates to add them to this workspace. The project creator remains a member.</span></div></div>}</section>
+        {tasks.length > 0 && <section className="tw-allocation-panel"><div className="tw-allocation-heading"><div><span className="tw-live-eyebrow"><Sparkles size={14} /> TASK ALLOCATION</span><h2>{workspace.allocation_proposal?.status === 'approved' ? 'Approved allocation' : 'Review proposed assignments'}</h2><p>{workspace.allocation_proposal?.summary || 'Suggestions use joined members only. Review before any proposed assignment is saved.'}</p></div><button className="tw-allocation-generate" onClick={() => void createAllocationProposal()} disabled={!workspace.project.is_owner || allocationBusy}>{allocationBusy ? <RefreshCw className="tw-spin" size={14} /> : <Sparkles size={14} />}{workspace.allocation_proposal ? 'Recalculate proposal' : 'Generate proposal'}</button></div>
+          {workspace.allocation_proposal?.stale && <div className="tw-allocation-stale" role="status">The team profile or roadmap changed since this proposal. Recalculate it before approval. Current assignments remain intact.</div>}
+          {workspace.allocation_proposal?.assignments?.length > 0 && <><div className="tw-proposal-workloads">{proposedWorkloads.map(({ member, hours }) => <span key={member.id}><b>{member.display_name}</b> {hours} proposed task-hours{member.availability_hours ? ` · ${member.availability_hours}h/week available` : ''}</span>)}</div><div className="tw-proposal-list">{workspace.allocation_proposal.assignments.map((row, index) => { const edit = allocationEdits.find(item => item.task_id === row.task_id); const task = tasks.find(item => item.id === row.task_id); return <article className="tw-proposal-row" key={row.task_id}><div className="tw-proposal-index">{String(index + 1).padStart(2, '0')}</div><div className="tw-proposal-main"><b>{task?.title || row.task_title}</b><small>{row.milestone || task?.milestone} · {row.effort_hours}h · due {row.deadline || 'not set'}</small><p>{row.reason}</p>{row.matched_skills?.length > 0 && <span className="tw-proposal-evidence">Matches: {row.matched_skills.join(', ')}</span>}{row.skill_gaps?.length > 0 && <span className="tw-proposal-gap">Skill evidence unknown: {row.skill_gaps.join(', ')}</span>}</div><select aria-label={`Proposed owner for ${task?.title || row.task_title}`} value={edit?.member_id || ''} disabled={!workspace.project.is_owner || workspace.allocation_proposal.status === 'approved' || workspace.allocation_proposal.stale} onChange={event => setAllocationEdits(current => current.map(item => item.task_id === row.task_id ? { ...item, member_id: event.target.value ? Number(event.target.value) : null } : item))}><option value="">Leave unassigned</option>{members.map(member => <option key={member.id} value={member.id}>{member.display_name}</option>)}</select></article> })}</div></>}
+          {workspace.allocation_proposal?.status === 'pending' && <div className="tw-allocation-footer"><span>{workspace.project.is_owner ? 'Proposals never modify assignments until you approve.' : 'Only the project owner can approve proposed assignments.'}</span>{workspace.project.is_owner && <button onClick={() => void approveAllocation()} disabled={allocationBusy || workspace.allocation_proposal.stale}><Check size={14} />{allocationBusy ? 'Saving…' : 'Approve assignments'}</button>}</div>}
+          {workspace.allocation_proposal?.status === 'approved' && !workspace.allocation_proposal.stale && <div className="tw-allocation-footer"><span>Assignments were approved and saved to the Flight Plan tasks.</span></div>}
+        </section>}
+        <section className="tw-members-panel"><div className="tw-live-section-head"><div><span className="tw-live-eyebrow">PEOPLE</span><h2>Team members</h2></div><div className="tw-team-actions"><span className="tw-capacity-copy">{members.length} of {workspace.project.team_size} members joined · {remainingCapacity} capacity remaining</span><div className="tw-size-control"><label>Capacity<input type="number" min="1" max="50" value={teamSize} disabled={!workspace.project.is_owner} onChange={e => setTeamSize(Math.max(1, Number(e.target.value) || 1))} /></label><button onClick={changeSize} disabled={!workspace.project.is_owner}>Update</button></div><button className="tw-invite-button" onClick={() => setInviteOpen(true)} disabled={!workspace.project.is_owner || remainingCapacity < 1}><Plus size={16} /> Invite members</button></div></div><p className="tw-panel-hint">Team size sets capacity. Members appear here after accepting a secure invitation.</p>{members.length ? <div className="tw-live-member-grid">{members.map(member => <MemberCard key={member.id} member={member} onSave={saveMember} onRemove={removeMember} />)}</div> : <div className="tw-member-empty"><Users size={18} /><div><b>No joined members yet</b><span>Invite teammates to add them to this workspace. The project creator remains a member.</span></div></div>}</section>
         {pendingInvitations.length > 0 && <section className="tw-pending-panel"><div className="tw-live-section-head"><div><span className="tw-live-eyebrow">INVITATIONS</span><h2>Pending invitations <span>{pendingInvitations.length}</span></h2></div></div><div className="tw-invitation-list">{pendingInvitations.map(invite => { const recent = invitationLinks[invite.id]; return <article className="tw-invitation-row" key={invite.id}><span className="tw-invitation-icon"><Mail size={15} /></span><div className="tw-invitation-person"><b>{invite.name || invite.email}</b><small>{invite.name ? invite.email : invite.role || 'Invitation pending'}{invite.role && invite.name ? ` · ${invite.role}` : ''}</small></div><span className="tw-invitation-status">Pending · expires {new Date(invite.expires_at).toLocaleDateString()}</span>{recent?.invite_link && <button className="tw-invitation-action" onClick={() => void copyInvitationLink(recent.invite_link)}><Copy size={13} /> Copy link</button>}<button className="tw-invitation-action" onClick={() => void invitationAction(invite, 'resend')}>Resend</button><button className="tw-invitation-cancel" onClick={() => void invitationAction(invite, 'cancel')}>Cancel</button></article> })}</div></section>}
         {invitations.some(invite => ['declined', 'expired'].includes(invite.status)) && <section className="tw-invite-history"><span>Invitation history</span>{invitations.filter(invite => ['declined', 'expired'].includes(invite.status)).map(invite => <small key={invite.id}>{invite.email} · {invite.status}</small>)}</section>}
         <section className="tw-task-panel"><div className="tw-live-section-head"><div><span className="tw-live-eyebrow">FLIGHT PLAN</span><h2>Roadmap tasks <span>{tasks.length}</span></h2></div><span className="tw-task-count-icon"><Filter size={15} /> Filter tasks</span></div>

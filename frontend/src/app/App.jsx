@@ -9,10 +9,13 @@ import FlightPlan from '../pages/FlightPlan.jsx'
 import ProjectSetup from '../pages/ProjectSetup.jsx'
 import Learning from '../pages/Learning.jsx'
 import MarketingStudio from '../pages/MarketingStudio.jsx'
+import DeveloperProfile from '../pages/DeveloperProfile.jsx'
 
 export default function App() {
   return <Routes>
     <Route path="/" element={<MainDashboard />} />
+    <Route path="/login" element={<DeveloperProfile />} />
+    <Route path="/profile" element={<DeveloperProfile />} />
     <Route path="/projects" element={<MyProjects />} />
     <Route path="/projects/new/setup" element={<ProjectSetup />} />
     <Route path="/projects/new/repository" element={<Navigate to="/projects/new/setup" replace />} />

@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
-import { ArrowRight, Bell, BriefcaseBusiness, GraduationCap, Lightbulb, Menu, Paperclip, Rocket, Search, Send, Sparkles, X } from 'lucide-react'
+import { ArrowRight, Bell, BriefcaseBusiness, GraduationCap, Github, Lightbulb, Menu, Paperclip, Rocket, Search, Send, Sparkles, X } from 'lucide-react'
 import { createPortal } from 'react-dom'
 import { Link, useNavigate } from 'react-router-dom'
 import Sidebar from '../layouts/Sidebar.jsx'
 import { saveProjectDraft } from '../services/ideaWorkflowService.js'
+import { useAuth } from '../app/AuthContext.jsx'
 
 const draftKey = 'udaan:idea-draft'
 function newUuid() {
@@ -53,6 +54,7 @@ function flightGeometry(origin, width, height) {
 
 export default function MainDashboard() {
   const navigate = useNavigate()
+  const { auth } = useAuth()
   const prefersReducedMotion = useReducedMotion()
   const [menuOpen, setMenuOpen] = useState(false)
   const [savedDraft] = useState(readDraft)
@@ -122,6 +124,7 @@ export default function MainDashboard() {
       <motion.div className="ud-launch-content" animate={launching ? { opacity: 0, y: -12, scale: 0.995 } : { opacity: 1, y: 0, scale: 1 }} transition={{ duration: prefersReducedMotion ? 0.14 : 0.92, ease: [0.4, 0, 0.2, 1] }}>
       <header className="ud-topbar"><div className="ud-topbar-left"><button className="ud-mobile-menu ud-icon-button" aria-label="Open navigation" onClick={() => setMenuOpen(true)}><Menu size={20} /></button><span className="ud-topbar-title">My workspace</span></div><div className="ud-topbar-actions"><label className="ud-search"><Search size={16} /><input placeholder="Search projects" aria-label="Search projects" /></label><button className="ud-icon-button" aria-label="Notifications"><Bell size={18} /></button><span className="ud-avatar ud-top-avatar">TS</span></div></header>
       <main className="ud-main"><div className="ud-content ud-home-content">
+        {!auth.loading && !auth.authenticated && <aside className="ud-github-onboarding"><Github size={16} /><span><b>Personalize your project team</b><small>Connect GitHub to save your developer profile and get evidence-aware task suggestions.</small></span><Link to="/profile">Continue with GitHub <ArrowRight size={14} /></Link></aside>}
         <section className="ud-home-hero" aria-labelledby="welcome-title"><span className="ud-welcome-mark"><Sparkles size={19} /></span><p className="ud-welcome-overline">A little idea can go a long way</p><h1 id="welcome-title">What are you dreaming of building?</h1><p className="ud-welcome-subtitle">Describe your idea. UDAAN will help you turn it into a plan.</p>
           <form className="ud-idea-form" onSubmit={launch} noValidate><label className="ud-sr-only" htmlFor="idea-input-field">Describe your idea</label><textarea id="idea-input-field" rows={5} value={idea} onChange={event => { setIdea(event.target.value); if (submission.phase === 'error') setSubmission({ phase: 'idle', message: '', payload: null, geometry: null }) }} placeholder="I want to build something that..." disabled={launching} />
             <div className="ud-form-bottom"><div className="ud-form-tools"><div className="ud-type-selector" role="group" aria-label="Project type">{['Startup', 'Hackathon', 'College Project', 'Personal Project'].map((type, index) => { const Icon = [BriefcaseBusiness, Rocket, GraduationCap, Lightbulb][index]; return <button key={type} type="button" className={intent === type ? 'selected' : ''} aria-pressed={intent === type} onClick={() => setIntent(type)} disabled={launching}><Icon size={14} />{type}</button> })}</div>

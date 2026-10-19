@@ -7,16 +7,37 @@ import { askLearningTutor, getLearningProject, getLearningRecommendations, getLe
 import './Learning.css'
 
 const resources = [
+  // React
   { id: 'react-quickstart', title: 'Quick Start', provider: 'React documentation', type: 'documentation', difficulty: 'Beginner', minutes: 30, url: 'https://react.dev/learn', topics: ['react', 'components', 'state', 'frontend'], tags: ['React', 'UI'], description: 'Learn components, rendering, events and state from the official React guide.' },
   { id: 'react-example', title: 'Build Tic-Tac-Toe', provider: 'React documentation', type: 'example', difficulty: 'Beginner', minutes: 60, url: 'https://react.dev/learn/tutorial-tic-tac-toe', topics: ['react', 'components', 'state', 'frontend', 'practice'], tags: ['React', 'Example'], description: 'Build a small interactive app while practicing components, state and event handling.' },
-  { id: 'react-video', title: 'Learn React — Full Course for Beginners', provider: 'freeCodeCamp.org · YouTube', type: 'youtube', difficulty: 'Beginner', minutes: 300, url: 'https://www.youtube.com/watch?v=DLX62G4lc44', topics: ['react', 'javascript', 'components'], tags: ['React', 'JavaScript'], description: 'A guided video course for building a foundation in React.' },
-  { id: 'django-tutorial', title: 'Django tutorial', provider: 'Django documentation', type: 'documentation', difficulty: 'Beginner', minutes: 120, url: 'https://docs.djangoproject.com/en/stable/intro/tutorial01/', topics: ['django', 'python', 'models', 'views', 'backend'], tags: ['Django', 'Python'], description: 'Build a small Django application while learning the framework’s core structure.' },
+  // Django / Python
+  { id: 'django-tutorial', title: 'Django Tutorial', provider: 'Django documentation', type: 'documentation', difficulty: 'Beginner', minutes: 120, url: 'https://docs.djangoproject.com/en/stable/intro/tutorial01/', topics: ['django', 'python', 'models', 'views', 'backend'], tags: ['Django', 'Python'], description: 'Build a small Django application while learning the framework\'s core structure.' },
   { id: 'drf-quickstart', title: 'Quickstart', provider: 'Django REST framework', type: 'documentation', difficulty: 'Intermediate', minutes: 45, url: 'https://www.django-rest-framework.org/tutorial/quickstart/', topics: ['django rest framework', 'api', 'serialization', 'backend'], tags: ['Django REST Framework', 'API'], description: 'Create serializers, views and routes for a REST API.' },
-  { id: 'mdn-fetch', title: 'Making network requests', provider: 'MDN Web Docs', type: 'guide', difficulty: 'Beginner', minutes: 35, url: 'https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Scripting/Network_requests', topics: ['fetch', 'api', 'http', 'react', 'integration'], tags: ['JavaScript', 'API'], description: 'Understand asynchronous requests and how browser code communicates with an API.' },
-  { id: 'mdn-auth', title: 'HTTP authentication', provider: 'MDN Web Docs', type: 'guide', difficulty: 'Intermediate', minutes: 25, url: 'https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Authentication', topics: ['authentication', 'auth', 'http', 'security', 'login'], tags: ['HTTP', 'Security'], description: 'Learn the HTTP authentication challenge and response model.' },
   { id: 'python-tutorial', title: 'The Python Tutorial', provider: 'Python documentation', type: 'documentation', difficulty: 'Beginner', minutes: 90, url: 'https://docs.python.org/3/tutorial/index.html', topics: ['python', 'django', 'backend'], tags: ['Python'], description: 'A practical introduction to the Python language for programmers.' },
-  { id: 'python-visualizer', title: 'Python Tutor visualizer', provider: 'Python Tutor', type: 'interactive', difficulty: 'Beginner', minutes: 15, url: 'https://pythontutor.com/visualize.html', topics: ['python', 'javascript', 'debugging', 'fundamentals'], tags: ['Python', 'JavaScript'], description: 'Step through a short program and see how its values change as it runs.' },
+  // MDN Guides
+  { id: 'mdn-fetch', title: 'Making Network Requests', provider: 'MDN Web Docs', type: 'guide', difficulty: 'Beginner', minutes: 35, url: 'https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Scripting/Network_requests', topics: ['fetch', 'api', 'http', 'react', 'integration'], tags: ['JavaScript', 'API'], description: 'Understand asynchronous requests and how browser code communicates with an API.' },
+  { id: 'mdn-auth', title: 'HTTP Authentication', provider: 'MDN Web Docs', type: 'guide', difficulty: 'Intermediate', minutes: 25, url: 'https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Authentication', topics: ['authentication', 'auth', 'http', 'security', 'login'], tags: ['HTTP', 'Security'], description: 'Learn the HTTP authentication challenge and response model.' },
+  { id: 'mdn-css', title: 'CSS Basics', provider: 'MDN Web Docs', type: 'guide', difficulty: 'Beginner', minutes: 40, url: 'https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Styling_basics', topics: ['css', 'frontend', 'design', 'ui'], tags: ['CSS', 'Frontend'], description: 'Understand selectors, the box model, and layout techniques used in modern web design.' },
+  { id: 'mdn-js-async', title: 'Asynchronous JavaScript', provider: 'MDN Web Docs', type: 'guide', difficulty: 'Intermediate', minutes: 50, url: 'https://developer.mozilla.org/en-US/docs/Learn_web_development/Extensions/Async_JS', topics: ['javascript', 'async', 'promises', 'fetch', 'api'], tags: ['JavaScript', 'Async'], description: 'Master promises, async/await, and how to handle data from APIs without blocking the UI.' },
+  // Interactive
+  { id: 'python-visualizer', title: 'Python Tutor Visualizer', provider: 'Python Tutor', type: 'interactive', difficulty: 'Beginner', minutes: 15, url: 'https://pythontutor.com/visualize.html', topics: ['python', 'javascript', 'debugging', 'fundamentals'], tags: ['Python', 'JavaScript'], description: 'Step through a short program and see how its values change as it runs.' },
   { id: 'github-skills', title: 'GitHub Skills', provider: 'GitHub', type: 'interactive', difficulty: 'Beginner', minutes: 60, url: 'https://skills.github.com/', topics: ['git', 'github', 'workflow', 'deployment'], tags: ['Git', 'GitHub'], description: 'Practice software workflows with hands-on GitHub exercises.' },
+  { id: 'flexbox-froggy', title: 'Flexbox Froggy', provider: 'Flexbox Froggy', type: 'interactive', difficulty: 'Beginner', minutes: 25, url: 'https://flexboxfroggy.com/', topics: ['css', 'frontend', 'flexbox', 'layout'], tags: ['CSS', 'Frontend'], description: 'Learn CSS Flexbox layout by guiding a frog to its lilypad through 24 interactive levels.' },
+  { id: 'sql-zoo', title: 'SQLZoo', provider: 'SQLZoo', type: 'interactive', difficulty: 'Beginner', minutes: 60, url: 'https://sqlzoo.net/', topics: ['sql', 'database', 'backend', 'data'], tags: ['SQL', 'Database'], description: 'Hands-on SQL exercises ranging from simple SELECT queries to complex joins and aggregations.' },
+  // Practical examples
+  { id: 'todo-react', title: 'Build a To-Do App in React', provider: 'Scrimba · YouTube', type: 'example', difficulty: 'Beginner', minutes: 45, url: 'https://scrimba.com/learn-react-c0e', topics: ['react', 'components', 'state', 'frontend', 'practice'], tags: ['React', 'Example'], description: 'Build a complete to-do list while drilling down on React state and component structure.' },
+  { id: 'rest-api-example', title: 'Build a REST API with Django', provider: 'TestDriven.io', type: 'example', difficulty: 'Intermediate', minutes: 90, url: 'https://testdriven.io/blog/django-rest-framework/', topics: ['django rest framework', 'api', 'backend', 'python', 'practice'], tags: ['Django', 'API'], description: 'Step-by-step guide to building and testing a real Django REST API from scratch.' },
+  // YouTube tutorials
+  { id: 'yt-react-full', title: 'Learn React — Full Course for Beginners', provider: 'freeCodeCamp.org', type: 'youtube', difficulty: 'Beginner', minutes: 300, url: 'https://www.youtube.com/watch?v=DLX62G4lc44', videoId: 'DLX62G4lc44', topics: ['react', 'javascript', 'components', 'frontend'], tags: ['React', 'JavaScript'], description: 'A complete React course covering components, hooks, state, props and building real projects.' },
+  { id: 'yt-python-beginner', title: 'Python for Beginners — Full Course', provider: 'Programming with Mosh', type: 'youtube', difficulty: 'Beginner', minutes: 360, url: 'https://www.youtube.com/watch?v=_uQrJ0TkZlc', videoId: '_uQrJ0TkZlc', topics: ['python', 'backend', 'fundamentals', 'django'], tags: ['Python', 'Backend'], description: 'Master Python from scratch: variables, control flow, functions, OOP and working with files.' },
+  { id: 'yt-django-crash', title: 'Django Crash Course', provider: 'Traversy Media', type: 'youtube', difficulty: 'Beginner', minutes: 100, url: 'https://www.youtube.com/watch?v=e1IyzVyrLSU', videoId: 'e1IyzVyrLSU', topics: ['django', 'python', 'backend', 'models', 'views'], tags: ['Django', 'Python'], description: 'Build a Django app from zero — models, views, templates, and the admin panel explained clearly.' },
+  { id: 'yt-git-github', title: 'Git and GitHub — Full Course', provider: 'freeCodeCamp.org', type: 'youtube', difficulty: 'Beginner', minutes: 180, url: 'https://www.youtube.com/watch?v=RGOj5yH7evk', videoId: 'RGOj5yH7evk', topics: ['git', 'github', 'workflow', 'deployment', 'version control'], tags: ['Git', 'GitHub'], description: 'Everything you need to know about version control, branching, pull requests and collaboration.' },
+  { id: 'yt-js-crash', title: 'JavaScript Crash Course', provider: 'Traversy Media', type: 'youtube', difficulty: 'Beginner', minutes: 90, url: 'https://www.youtube.com/watch?v=hdI2bqOjy3c', videoId: 'hdI2bqOjy3c', topics: ['javascript', 'frontend', 'async', 'fetch', 'api'], tags: ['JavaScript', 'Frontend'], description: 'JavaScript fundamentals in one video: DOM, events, functions, arrays, objects and ES6+.' },
+  { id: 'yt-css-full', title: 'CSS Full Course — Flexbox & Grid', provider: 'Dave Gray', type: 'youtube', difficulty: 'Beginner', minutes: 240, url: 'https://www.youtube.com/watch?v=n4R2E7O-Ngo', videoId: 'n4R2E7O-Ngo', topics: ['css', 'frontend', 'flexbox', 'grid', 'design', 'ui'], tags: ['CSS', 'Frontend'], description: 'Complete CSS course covering Flexbox, Grid, responsive design and modern layout techniques.' },
+  { id: 'yt-api-rest', title: 'REST API Design Best Practices', provider: 'freeCodeCamp.org', type: 'youtube', difficulty: 'Intermediate', minutes: 60, url: 'https://www.youtube.com/watch?v=NiiejjVMZII', videoId: 'NiiejjVMZII', topics: ['api', 'rest', 'backend', 'http', 'integration'], tags: ['API', 'Backend'], description: 'Learn REST API design patterns, naming conventions, versioning and error handling.' },
+  { id: 'yt-sql-full', title: 'SQL Full Course for Beginners', provider: 'freeCodeCamp.org', type: 'youtube', difficulty: 'Beginner', minutes: 240, url: 'https://www.youtube.com/watch?v=HXV3zeQKqGY', videoId: 'HXV3zeQKqGY', topics: ['sql', 'database', 'backend', 'data', 'models'], tags: ['SQL', 'Database'], description: 'Learn SQL from scratch: SELECT, joins, aggregations, subqueries and database design principles.' },
+  { id: 'yt-ts-crash', title: 'TypeScript Crash Course', provider: 'Traversy Media', type: 'youtube', difficulty: 'Intermediate', minutes: 75, url: 'https://www.youtube.com/watch?v=BCg4U1FzODs', videoId: 'BCg4U1FzODs', topics: ['typescript', 'javascript', 'frontend', 'react'], tags: ['TypeScript', 'JavaScript'], description: 'Get up to speed with TypeScript: types, interfaces, generics and integrating with React.' },
+  { id: 'yt-docker-intro', title: 'Docker for Beginners', provider: 'TechWorld with Nana', type: 'youtube', difficulty: 'Intermediate', minutes: 120, url: 'https://www.youtube.com/watch?v=3c-iBn73dDE', videoId: '3c-iBn73dDE', topics: ['docker', 'deployment', 'devops', 'backend', 'workflow'], tags: ['Docker', 'DevOps'], description: 'Understand containers, images, Docker Compose and how to containerise a web application.' },
 ]
 const categories = [
   ['all', 'All resources'], ['youtube', 'YouTube tutorials'], ['documentation', 'Official documentation'], ['guide', 'Articles & guides'], ['interactive', 'Interactive exercises'], ['example', 'Practical examples'],
@@ -101,7 +122,17 @@ export default function Learning() {
     for (const step of path) for (const id of step.resource_ids || []) if (!rank.has(id)) rank.set(id, rank.size)
     return [...matchedResources].sort((a, b) => (rank.get(a.id) ?? Number.MAX_SAFE_INTEGER) - (rank.get(b.id) ?? Number.MAX_SAFE_INTEGER))
   }, [matchedResources, path])
-  const visibleResources = useMemo(() => matchedResources.filter(resource => (category === 'all' || resource.type === category) && `${resource.title} ${resource.provider} ${resource.tags.join(' ')} ${resource.description}`.toLowerCase().includes(query.toLowerCase())), [matchedResources, category, query])
+  // Library shows project-matched resources first; if filter/search yields nothing from
+  // matched set, fall back to the full catalogue so the library tabs are never empty.
+  const libraryResources = useMemo(() => {
+    const haystack = (r) => `${r.title} ${r.provider} ${r.tags.join(' ')} ${r.description}`.toLowerCase()
+    const q = query.toLowerCase()
+    const inMatched = matchedResources.filter(r => (category === 'all' || r.type === category) && haystack(r).includes(q))
+    if (inMatched.length > 0 || (category === 'all' && !q)) return inMatched
+    // Fallback: search / filter across all resources when the matched set has no results
+    return resources.filter(r => (category === 'all' || r.type === category) && haystack(r).includes(q))
+  }, [matchedResources, category, query])
+  const visibleResources = libraryResources
   const resourceScope = currentTask?.key || 'project'
   const scopedResourceKey = id => `${resourceScope}::${id}`
   const savedResourceIds = (learningState.saved_resources || []).filter(value => value.startsWith(`${resourceScope}::`)).map(value => value.slice(resourceScope.length + 2))
@@ -283,8 +314,8 @@ export default function Learning() {
             <div className="learn-resource-grid">{rankedResources.slice(0, 3).map(resource => <ResourceCard key={resource.id} resource={resource} saved={savedResourceIds.includes(resource.id)} onSave={saveResource} onOpen={openResource} />)}{!matchedResources.length && <div className="learn-inline-empty">No stack or task context is available yet. Add a Flight Plan task or connect a repository to improve recommendations.</div>}</div>
           </section>
 
-          <section className="learn-library"><div className="learn-section-heading"><div><p className="learn-eyebrow">LEARN AT YOUR PACE</p><h2>Resource library</h2><p>Search verified source links selected for this project’s task context.</p></div></div>
-            <div className="learn-library-controls"><label className="learn-search"><Search size={15} /><input value={query} onChange={event => setQuery(event.target.value)} placeholder="Search this project’s resources" aria-label="Search resources" /></label><div className="learn-categories" role="tablist" aria-label="Resource category">{categories.map(([id, label]) => <button key={id} role="tab" aria-selected={category === id} className={category === id ? 'active' : ''} onClick={() => setCategory(id)}>{label}</button>)}</div></div>
+          <section className="learn-library"><div className="learn-section-heading"><div><p className="learn-eyebrow">LEARN AT YOUR PACE</p><h2>Resource library</h2><p>{matchedResources.length ? 'Resources matched to this project\'s task context and detected stack.' : 'Curated resources from official docs, trusted guides and YouTube tutorials.'}</p></div>{visibleResources.length > 0 && <span className="learn-progress-pill">{visibleResources.length} resource{visibleResources.length === 1 ? '' : 's'}</span>}</div>
+            <div className="learn-library-controls"><label className="learn-search"><Search size={15} /><input value={query} onChange={event => setQuery(event.target.value)} placeholder={matchedResources.length ? "Search this project's resources" : 'Search all resources'} aria-label="Search resources" /></label><div className="learn-categories" role="tablist" aria-label="Resource category">{categories.map(([id, label]) => <button key={id} role="tab" aria-selected={category === id} className={category === id ? 'active' : ''} onClick={() => setCategory(id)}>{label}</button>)}</div></div>
             <div className="learn-resource-grid">{visibleResources.map(resource => <ResourceCard key={resource.id} resource={resource} saved={savedResourceIds.includes(resource.id)} onSave={saveResource} onOpen={openResource} />)}{!visibleResources.length && <div className="learn-inline-empty">No resources match this search and category. Try another filter.</div>}</div>
           </section>
 
@@ -308,9 +339,45 @@ export default function Learning() {
   </div>
 }
 
+function formatDuration(minutes) {
+  if (minutes >= 60) return `${Math.round(minutes / 60)} hr${minutes >= 120 ? 's' : ''}`
+  return `${minutes} min`
+}
+
 function ResourceCard({ resource, saved, onSave, onOpen }) {
-  const Icon = resource.type === 'youtube' ? Youtube : resource.type === 'interactive' ? Play : resource.type === 'guide' ? Lightbulb : BookOpen
-  return <article className="learn-resource-card"><div className="learn-resource-icon"><Icon size={16} /></div><div className="learn-resource-meta"><span>{resource.provider}</span><span>{resource.difficulty} · {resource.minutes >= 60 ? `${Math.round(resource.minutes / 60)} hr${resource.minutes >= 120 ? 's' : ''}` : `${resource.minutes} min`}</span></div><h3>{resource.title}</h3><p>{resource.description}</p><div className="learn-resource-tags">{resource.tags.slice(0, 2).map(tag => <span key={tag}>{tag}</span>)}</div><div className="learn-resource-actions"><a href={resource.url} target="_blank" rel="noreferrer" onClick={() => onOpen(resource)}>{resource.type === 'youtube' ? 'Watch' : 'Open resource'} <ExternalLink size={13} /></a><button type="button" aria-label={saved ? `Remove ${resource.title} from saved` : `Save ${resource.title}`} onClick={() => onSave(resource)} className={saved ? 'saved' : ''}><Bookmark size={14} fill={saved ? 'currentColor' : 'none'} /></button></div></article>
+  if (resource.type === 'youtube') return <YoutubeCard resource={resource} saved={saved} onSave={onSave} onOpen={onOpen} />
+  const Icon = resource.type === 'interactive' ? Play : resource.type === 'guide' ? Lightbulb : resource.type === 'example' ? Code2 : BookOpen
+  return <article className="learn-resource-card">
+    <div className="learn-resource-icon"><Icon size={16} /></div>
+    <div className="learn-resource-meta"><span>{resource.provider}</span><span>{resource.difficulty} · {formatDuration(resource.minutes)}</span></div>
+    <h3>{resource.title}</h3>
+    <p>{resource.description}</p>
+    <div className="learn-resource-tags">{resource.tags.slice(0, 2).map(tag => <span key={tag}>{tag}</span>)}</div>
+    <div className="learn-resource-actions">
+      <a href={resource.url} target="_blank" rel="noreferrer" onClick={() => onOpen(resource)}>Open resource <ExternalLink size={13} /></a>
+      <button type="button" aria-label={saved ? `Remove ${resource.title} from saved` : `Save ${resource.title}`} onClick={() => onSave(resource)} className={saved ? 'saved' : ''}><Bookmark size={14} fill={saved ? 'currentColor' : 'none'} /></button>
+    </div>
+  </article>
+}
+
+function YoutubeCard({ resource, saved, onSave, onOpen }) {
+  const thumb = resource.videoId ? `https://i.ytimg.com/vi/${resource.videoId}/mqdefault.jpg` : null
+  return <article className="learn-yt-card">
+    <a className="learn-yt-thumb" href={resource.url} target="_blank" rel="noreferrer" onClick={() => onOpen(resource)} aria-label={`Watch ${resource.title}`}>
+      {thumb ? <img src={thumb} alt="" loading="lazy" /> : <div className="learn-yt-thumb-fallback"><Youtube size={26} /></div>}
+      <span className="learn-yt-play"><Play size={17} fill="currentColor" /></span>
+      <span className="learn-yt-duration"><Clock3 size={11} />{formatDuration(resource.minutes)}</span>
+    </a>
+    <div className="learn-yt-body">
+      <div className="learn-yt-meta"><Youtube size={12} /><span>{resource.provider}</span><span className="learn-yt-dot" /><span>{resource.difficulty}</span></div>
+      <h3>{resource.title}</h3>
+      <p>{resource.description}</p>
+      <div className="learn-yt-footer">
+        <div className="learn-resource-tags">{resource.tags.slice(0, 2).map(tag => <span key={tag}>{tag}</span>)}</div>
+        <button type="button" aria-label={saved ? `Remove ${resource.title} from saved` : `Save ${resource.title}`} onClick={() => onSave(resource)} className={saved ? 'saved' : ''}><Bookmark size={14} fill={saved ? 'currentColor' : 'none'} /></button>
+      </div>
+    </div>
+  </article>
 }
 function ResourceList({ items, empty, onOpen }) {
   if (!items.length) return <p className="learn-list-empty">{empty}</p>
