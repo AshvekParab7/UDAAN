@@ -1,0 +1,432 @@
+/* ─── Layout ───────────────────────────────────────────────────────────────── */
+.vr-root {
+  display: flex;
+  min-height: 100vh;
+  background: #f4f6f4;
+}
+
+.vr-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  margin-left: 224px;
+}
+
+@media (max-width: 768px) {
+  .vr-body { margin-left: 0; }
+}
+
+/* ─── Topbar ────────────────────────────────────────────────────────────────── */
+.vr-topbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 24px;
+  height: 52px;
+  background: #fff;
+  border-bottom: 1px solid #e2eae3;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.vr-menu-btn {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #57706a;
+  padding: 4px;
+  border-radius: 6px;
+}
+
+@media (max-width: 768px) {
+  .vr-menu-btn { display: flex; }
+}
+
+.vr-topbar-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2328;
+  flex: 1;
+}
+
+.vr-topbar-icon { color: #176b45; }
+
+.vr-topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.vr-project-picker {
+  font-size: 12px;
+  border: 1px solid #e2eae3;
+  border-radius: 7px;
+  padding: 5px 8px;
+  background: #f7f8fa;
+  color: #1f2328;
+  cursor: pointer;
+  max-width: 200px;
+}
+
+.vr-refresh-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid #e2eae3;
+  border-radius: 7px;
+  padding: 6px 12px;
+  background: #fff;
+  color: #176b45;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.vr-refresh-btn:hover:not(:disabled) { background: #e9f5ee; }
+.vr-refresh-btn:disabled { opacity: 0.5; cursor: default; }
+
+/* ─── Main content ──────────────────────────────────────────────────────────── */
+.vr-main {
+  padding: 24px;
+  max-width: 860px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* ─── Hero summary ──────────────────────────────────────────────────────────── */
+.vr-hero {
+  background: #fff;
+  border: 1px solid #e2eae3;
+  border-radius: 12px;
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.vr-hero-ring {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.vr-hero-ring-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.vr-hero-status-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #176b45;
+}
+
+.vr-hero-sub {
+  font-size: 10px;
+  color: #57706a;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.vr-hero-stats {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.vr-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #f7f8fa;
+  border: 1px solid #e2eae3;
+  border-radius: 9px;
+  padding: 10px 18px;
+  min-width: 64px;
+}
+
+.vr-stat-num {
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.vr-stat-lbl {
+  font-size: 10px;
+  color: #57706a;
+  margin-top: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.vr-stat-pass .vr-stat-num { color: #176b45; }
+.vr-stat-warn .vr-stat-num { color: #9a5c00; }
+.vr-stat-fail .vr-stat-num { color: #8b2020; }
+.vr-stat-total .vr-stat-num { color: #1f2328; }
+
+.vr-hero-verdict {
+  flex: 1;
+  min-width: 200px;
+}
+
+.vr-verdict {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 13px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  line-height: 1.5;
+}
+
+.vr-verdict-pass { background: #e9f5ee; color: #176b45; }
+.vr-verdict-warn { background: #fdf1d7; color: #9a5c00; }
+.vr-verdict-fail { background: #fde8e8; color: #8b2020; }
+
+/* ─── Error / loading / empty ───────────────────────────────────────────────── */
+.vr-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #8b2020;
+  background: #fde8e8;
+  border: 1px solid #f5c0c0;
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-bottom: 20px;
+}
+
+.vr-loading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: #57706a;
+  padding: 40px 0;
+  justify-content: center;
+}
+
+.vr-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  color: #57706a;
+  font-size: 13px;
+  padding: 60px 0;
+  text-align: center;
+}
+
+.vr-empty a { color: #176b45; font-weight: 600; }
+
+/* ─── Categories ────────────────────────────────────────────────────────────── */
+.vr-categories {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.vr-category {
+  background: #fff;
+  border: 1px solid #e2eae3;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.vr-category-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  border-bottom: 1px solid #e2eae3;
+  background: #f7f8fa;
+}
+
+.vr-category-label {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #57706a;
+}
+
+.vr-category-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.vr-cat-badge {
+  font-size: 10px;
+  font-weight: 600;
+  border-radius: 20px;
+  padding: 2px 8px;
+}
+
+.vr-cat-badge-fail { background: #fde8e8; color: #8b2020; }
+.vr-cat-badge-warn { background: #fdf1d7; color: #9a5c00; }
+
+.vr-cat-score {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 20px;
+}
+
+.vr-cat-score-pass { background: #e9f5ee; color: #176b45; }
+.vr-cat-score-warn { background: #fdf1d7; color: #9a5c00; }
+.vr-cat-score-fail { background: #fde8e8; color: #8b2020; }
+
+/* ─── Check list ────────────────────────────────────────────────────────────── */
+.vr-check-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.vr-check-item {
+  border-bottom: 1px solid #e2eae3;
+}
+
+.vr-check-item:last-child { border-bottom: none; }
+
+.vr-check-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 18px;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.12s;
+}
+
+.vr-check-header:hover { background: #f7f8fa; }
+
+.vr-check-label {
+  flex: 1;
+  font-size: 13px;
+  color: #1f2328;
+  font-weight: 500;
+}
+
+.vr-check-badge {
+  font-size: 10px;
+  color: #57706a;
+  background: #f0f4f0;
+  border: 1px solid #e2eae3;
+  border-radius: 20px;
+  padding: 2px 8px;
+  white-space: nowrap;
+}
+
+.vr-check-body {
+  padding: 0 18px 14px 44px;
+}
+
+.vr-check-detail {
+  font-size: 12px;
+  color: #57706a;
+  line-height: 1.5;
+  margin: 0 0 8px;
+}
+
+.vr-fix-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #176b45;
+  text-decoration: none;
+  background: #e9f5ee;
+  border-radius: 6px;
+  padding: 4px 10px;
+}
+
+.vr-fix-link:hover { background: #d0eedd; }
+
+/* ─── Status icons ──────────────────────────────────────────────────────────── */
+.vr-icon-pass { color: #176b45; flex-shrink: 0; }
+.vr-icon-warn { color: #9a5c00; flex-shrink: 0; }
+.vr-icon-fail { color: #8b2020; flex-shrink: 0; }
+.vr-icon-na   { color: #b8c8be; flex-shrink: 0; }
+
+/* ─── Passport CTA ──────────────────────────────────────────────────────────── */
+.vr-passport-cta {
+  margin-top: 24px;
+  background: #fff;
+  border: 1px solid #c8e8d4;
+  border-radius: 12px;
+  padding: 18px 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.vr-passport-cta-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  flex: 1;
+}
+
+.vr-passport-cta-icon { color: #176b45; flex-shrink: 0; margin-top: 2px; }
+
+.vr-passport-cta-content strong {
+  display: block;
+  font-size: 13px;
+  color: #1f2328;
+  margin-bottom: 3px;
+}
+
+.vr-passport-cta-content p {
+  font-size: 12px;
+  color: #57706a;
+  margin: 0;
+}
+
+.vr-passport-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  background: #176b45;
+  border-radius: 8px;
+  padding: 8px 16px;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+
+.vr-passport-cta-btn:hover { background: #1a7d51; }
+
+/* ─── Spinner ───────────────────────────────────────────────────────────────── */
+.vr-spin {
+  animation: vr-spin 0.9s linear infinite;
+}
+
+@keyframes vr-spin {
+  to { transform: rotate(360deg); }
+}

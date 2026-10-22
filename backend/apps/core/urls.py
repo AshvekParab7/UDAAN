@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 from .idea_views import (
     IdeaAnalysisView,
     IdeaWorkflowStageView,
@@ -63,3 +63,9 @@ urlpatterns = [
     path('marketing/content/', MarketingContentCollectionView.as_view(), name='marketing-content-list-create'),
     path('marketing/content/<int:item_id>/', MarketingContentDetailView.as_view(), name='marketing-content-detail'),
 ]
+
+from apps.health.urls import urlpatterns as health_urlpatterns
+urlpatterns += health_urlpatterns
+
+from apps.testpilot.urls import urlpatterns as testpilot_urlpatterns
+urlpatterns += testpilot_urlpatterns

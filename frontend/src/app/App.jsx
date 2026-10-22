@@ -10,6 +10,9 @@ import ProjectSetup from '../pages/ProjectSetup.jsx'
 import Learning from '../pages/Learning.jsx'
 import MarketingStudio from '../pages/MarketingStudio.jsx'
 import DeveloperProfile from '../pages/DeveloperProfile.jsx'
+import MissionControl from '../pages/MissionControl.jsx'
+import TestPilot from '../pages/TestPilot.jsx'
+import Verification from '../pages/Verification.jsx'
 
 export default function App() {
   return <Routes>
@@ -24,6 +27,9 @@ export default function App() {
     <Route path="/team" element={<TeamWorkspace />} />
     <Route path="/learning" element={<Learning />} />
     <Route path="/marketing-studio" element={<MarketingStudio />} />
+    <Route path="/issues" element={<MissionControl />} />
+    <Route path="/testpilot" element={<TestPilot />} />
+    <Route path="/verification" element={<Verification />} />
     <Route path="/reports" element={<Navigate to="/marketing-studio" replace />} />
     <Route path="/team/invite/:token" element={<TeamInvitationAccept />} />
     <Route path="/repository" element={<Repository />} />

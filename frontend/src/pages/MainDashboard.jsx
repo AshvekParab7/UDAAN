@@ -6,6 +6,8 @@ import { Link, useNavigate } from 'react-router-dom'
 import Sidebar from '../layouts/Sidebar.jsx'
 import { saveProjectDraft } from '../services/ideaWorkflowService.js'
 import { useAuth } from '../app/AuthContext.jsx'
+import { getHealthScore, statusClass, statusLabel } from '../services/healthService.js'
+import { readSavedProjects } from '../services/projectStorage.js'
 
 const draftKey = 'udaan:idea-draft'
 function newUuid() {
@@ -50,6 +52,65 @@ function flightGeometry(origin, width, height) {
     y: points.map(point => point.y - origin.y),
     rotate: rotations,
   }
+}
+
+function HealthWidget() {
+  const projects = readSavedProjects()
+  const projectId = localStorage.getItem('udaan:selected-project') || projects[0]?.id || ''
+  const project = projects.find(p => p.id === projectId)
+  const [health, setHealth] = useState(null)
+
+  useEffect(() => {
+    if (!projectId) return
+    getHealthScore(projectId).then(setHealth).catch(() => {})
+  }, [projectId])
+
+  if (!projectId || !project) return null
+
+  const score = health?.score ?? null
+  const band = health?.signals?.status ?? health?.status ?? 'needs_attention'
+  const cls = statusClass(band)
+  const label = statusLabel(band)
+
+  const bandColor = { green: '#176b45', blue: '#1d5c9b', amber: '#9a5c00', red: '#8b2020', grey: '#57706a' }[cls] || '#57706a'
+  const bandBg = { green: '#e9f5ee', blue: '#e5eef9', amber: '#fdf1d7', red: '#fde8e8', grey: '#f0f4f0' }[cls] || '#f0f4f0'
+
+  return (
+    <section className="ud-health-widget" aria-label="Project health score">
+      <div className="ud-simple-section-heading">
+        <h2>Project health</h2>
+        <Link to="/issues">View full report <ArrowRight size={14} /></Link>
+      </div>
+      <div className="ud-health-card">
+        <div className="ud-health-score-ring" aria-hidden="true">
+          <svg viewBox="0 0 48 48" width="48" height="48">
+            <circle cx="24" cy="24" r="18" fill="none" stroke="#e2eae3" strokeWidth="5" />
+            {score !== null && (
+              <circle
+                cx="24" cy="24" r="18" fill="none"
+                stroke={bandColor} strokeWidth="5" strokeLinecap="round"
+                strokeDasharray={`${2 * Math.PI * 18}`}
+                strokeDashoffset={`${2 * Math.PI * 18 * (1 - score / 100)}`}
+                transform="rotate(-90 24 24)"
+                style={{ transition: 'stroke-dashoffset 1s ease' }}
+              />
+            )}
+          </svg>
+        </div>
+        <div className="ud-health-copy">
+          <span className="ud-health-project-name">{project.name || 'Your project'}</span>
+          <div className="ud-health-row">
+            <span className="ud-health-num">{score !== null ? score : '—'}</span>
+            <span className="ud-health-denom">/100</span>
+            {health && (
+              <span className="ud-health-badge" style={{ background: bandBg, color: bandColor }}>{label}</span>
+            )}
+          </div>
+          {!health && <span className="ud-health-loading">Computing…</span>}
+        </div>
+      </div>
+    </section>
+  )
 }
 
 export default function MainDashboard() {
@@ -136,6 +197,7 @@ export default function MainDashboard() {
         </section>
         <section className="ud-inspiration"><div className="ud-simple-section-heading"><h2>Need inspiration?</h2><span>Pick one to get started</span></div><div className="ud-example-list">{ideas.map(([icon, title, description]) => <button className="ud-example" key={title} disabled={launching} onClick={() => { setIdea(`${title}. ${description}`); setSubmission({ phase: 'idle', message: '', payload: null, geometry: null }); document.getElementById('idea-input-field')?.focus() }}><span className="ud-example-icon">{icon}</span><span className="ud-example-copy"><strong>{title}</strong><small>{description}</small></span><ArrowRight size={15} className="ud-example-arrow" /></button>)}</div></section>
         <section className="ud-recent"><div className="ud-simple-section-heading"><h2>Your recent projects</h2><Link to="/projects">View all <ArrowRight size={14} /></Link></div><div className="ud-recent-list">{[['E','EcoTrack','Sustainability insights for everyday teams','Startup','green'],['S','Study Buddy','A calmer way to stay on top of coursework','College Project','blue'],['S','Sunday Table','Recipes and meal plans for shared homes','Personal Project','gold']].map(([mark,name,description,type,tone]) => <Link className="ud-recent-row" to="/projects" key={name}><span className={`ud-recent-mark ${tone}`}>{mark}</span><span className="ud-recent-copy"><strong>{name}</strong><small>{description}</small></span><span className="ud-project-type">{type}</span><ArrowRight size={15} className="ud-recent-arrow" /></Link>)}</div></section>
+        <HealthWidget />
       </div></main>
       </motion.div>
       {launching && submission.geometry && createPortal(<motion.div className="ud-flight-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: prefersReducedMotion ? 0.08 : 0.2 }} aria-hidden="true">

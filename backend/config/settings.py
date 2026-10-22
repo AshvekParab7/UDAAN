@@ -17,6 +17,8 @@ INSTALLED_APPS = [
     'apps.projects.apps.ProjectsConfig', 'apps.roadmaps.apps.RoadmapsConfig',
     'apps.teams.apps.TeamsConfig', 'apps.integrations.apps.IntegrationsConfig',
     'apps.verification.apps.VerificationConfig',
+    'apps.health.apps.HealthConfig',
+    'apps.testpilot.apps.TestPilotConfig',
 ]
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
